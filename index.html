@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duit Tracker Pro - Financial Tracker</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- User Selection Screen -->
+    <div id="user-screen" class="screen active">
+        <div class="user-container">
+            <div class="logo-section">
+                <div class="logo-icon"><i class="fas fa-wallet"></i></div>
+                <h1>Duit Tracker Pro</h1>
+                <p>Kelola keuanganmu dengan cerdas</p>
+            </div>
+            <div class="user-list" id="user-list"></div>
+            <div class="add-user-section">
+                <input type="text" id="new-user-name" placeholder="Nama pengguna baru..." maxlength="20">
+                <button id="add-user-btn"><i class="fas fa-plus"></i> Tambah</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app-screen" class="screen">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon small"><i class="fas fa-wallet"></i></div>
+                <span class="brand">Duit Tracker</span>
+                <button class="sidebar-close" id="sidebar-close"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="nav-menu">
+                <a href="#" class="nav-item active" data-page="dashboard">
+                    <i class="fas fa-chart-pie"></i><span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-page="transactions">
+                    <i class="fas fa-list"></i><span>Transaksi</span>
+                </a>
+                <a href="#" class="nav-item" data-page="chat">
+                    <i class="fas fa-comments"></i><span>Chat Input</span>
+                </a>
+                <a href="#" class="nav-item" data-page="insights">
+                    <i class="fas fa-lightbulb"></i><span>Insight</span>
+                </a>
+                <a href="#" class="nav-item" data-page="settings">
+                    <i class="fas fa-cog"></i><span>Pengaturan</span>
+                </a>
+            </div>
+            <div class="sidebar-footer">
+                <button id="switch-user-btn"><i class="fas fa-users"></i> Ganti User</button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="topbar">
+                <button class="menu-toggle" id="menu-toggle"><i class="fas fa-bars"></i></button>
+                <div class="topbar-info">
+                    <span class="greeting" id="greeting"></span>
+                    <span class="current-user" id="current-user-display"></span>
+                </div>
+                <div class="topbar-actions">
+                    <button class="theme-toggle" id="theme-toggle"><i class="fas fa-moon"></i></button>
+                    <button class="notif-btn" id="notif-btn"><i class="fas fa-bell"></i></button>
+                </div>
+            </header>
+
+            <!-- Dashboard Page -->
+            <section class="page active" id="page-dashboard">
+                <div class="summary-cards">
+                    <div class="card card-balance">
+                        <div class="card-icon"><i class="fas fa-piggy-bank"></i></div>
+                        <div class="card-info">
+                            <span class="card-label">Saldo</span>
+                            <span class="card-value" id="total-balance">Rp 0</span>
+                        </div>
+                    </div>
+                    <div class="card card-income">
+                        <div class="card-icon"><i class="fas fa-arrow-down"></i></div>
+                        <div class="card-info">
+                            <span class="card-label">Pemasukan Bulan Ini</span>
+                            <span class="card-value" id="total-income">Rp 0</span>
+                        </div>
+                    </div>
+                    <div class="card card-expense">
+                        <div class="card-icon"><i class="fas fa-arrow-up"></i></div>
+                        <div class="card-info">
+                            <span class="card-label">Pengeluaran Bulan Ini</span>
+                            <span class="card-value" id="total-expense">Rp 0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 50/30/20 Ratio -->
+                <div class="ratio-section">
+                    <h3><i class="fas fa-chart-bar"></i> Rasio 50/30/20</h3>
+                    <div class="ratio-bars">
+                        <div class="ratio-item">
+                            <div class="ratio-header">
+                                <span>Kebutuhan (50%)</span>
+                                <span id="ratio-needs-pct">0%</span>
+                            </div>
+                            <div class="ratio-bar"><div class="ratio-fill needs" id="ratio-needs"></div></div>
+                            <span class="ratio-amount" id="ratio-needs-amount">Rp 0</span>
+                        </div>
+                        <div class="ratio-item">
+                            <div class="ratio-header">
+                                <span>Keinginan (30%)</span>
+                                <span id="ratio-wants-pct">0%</span>
+                            </div>
+                            <div class="ratio-bar"><div class="ratio-fill wants" id="ratio-wants"></div></div>
+                            <span class="ratio-amount" id="ratio-wants-amount">Rp 0</span>
+                        </div>
+                        <div class="ratio-item">
+                            <div class="ratio-header">
+                                <span>Tabungan (20%)</span>
+                                <span id="ratio-savings-pct">0%</span>
+                            </div>
+                            <div class="ratio-bar"><div class="ratio-fill savings" id="ratio-savings"></div></div>
+                            <span class="ratio-amount" id="ratio-savings-amount">Rp 0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <h3><i class="fas fa-chart-doughnut"></i> Kategori Pengeluaran</h3>
+                        <canvas id="category-chart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3><i class="fas fa-chart-line"></i> Tren Bulanan</h3>
+                        <canvas id="trend-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div class="recent-transactions">
+                    <h3><i class="fas fa-clock"></i> Transaksi Terakhir</h3>
+                    <div class="transaction-list" id="recent-list"></div>
+                </div>
+            </section>
+
+            <!-- Transactions Page -->
+            <section class="page" id="page-transactions">
+                <div class="page-header">
+                    <h2>Semua Transaksi</h2>
+                    <button class="btn-primary" id="add-transaction-btn">
+                        <i class="fas fa-plus"></i> Tambah
+                    </button>
+                </div>
+                <div class="filters">
+                    <select id="filter-type">
+                        <option value="all">Semua Tipe</option>
+                        <option value="income">Pemasukan</option>
+                        <option value="expense">Pengeluaran</option>
+                    </select>
+                    <select id="filter-category">
+                        <option value="all">Semua Kategori</option>
+                    </select>
+                    <input type="month" id="filter-month">
+                </div>
+                <div class="transaction-list full" id="all-transactions-list"></div>
+            </section>
+
+            <!-- Chat Input Page -->
+            <section class="page" id="page-chat">
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <h2><i class="fas fa-robot"></i> Chat Input</h2>
+                        <p>Ketik transaksi dengan bahasa natural</p>
+                    </div>
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="chat-bubble bot">
+                            <p>Halo! Saya bisa bantu catat keuanganmu. Coba ketik seperti:</p>
+                            <ul>
+                                <li>"lapor pemasukan 5.000.000 gaji bulanan"</li>
+                                <li>"pengeluaran 50.000 makan siang"</li>
+                                <li>"keluar 200.000 bensin"</li>
+                                <li>"masuk 1.500.000 freelance"</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chat-input" placeholder="Ketik transaksi..." autocomplete="off">
+                        <button id="chat-send-btn"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Insights Page -->
+            <section class="page" id="page-insights">
+                <div class="insights-container">
+                    <h2><i class="fas fa-lightbulb"></i> Insight Keuangan</h2>
+                    <div class="insight-cards" id="insight-cards"></div>
+                    <div class="chart-container full-width">
+                        <h3><i class="fas fa-chart-area"></i> Perbandingan Pemasukan vs Pengeluaran</h3>
+                        <canvas id="comparison-chart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Page -->
+            <section class="page" id="page-settings">
+                <div class="settings-container">
+                    <h2><i class="fas fa-cog"></i> Pengaturan</h2>
+                    
+                    <div class="setting-group">
+                        <h3>Reminder Harian</h3>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" id="reminder-enabled">
+                                Aktifkan reminder harian
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label>Waktu reminder:</label>
+                            <input type="time" id="reminder-time" value="20:00">
+                        </div>
+                    </div>
+
+                    <div class="setting-group">
+                        <h3>Target Bulanan</h3>
+                        <div class="setting-item">
+                            <label>Target pengeluaran maks:</label>
+                            <input type="number" id="budget-target" placeholder="5000000">
+                        </div>
+                        <div class="setting-item">
+                            <label>Target tabungan:</label>
+                            <input type="number" id="savings-target" placeholder="1000000">
+                        </div>
+                        <button class="btn-primary" id="save-settings-btn">
+                            <i class="fas fa-save"></i> Simpan Pengaturan
+                        </button>
+                    </div>
+
+                    <div class="setting-group">
+                        <h3>Data</h3>
+                        <div class="setting-actions">
+                            <button class="btn-secondary" id="export-btn">
+                                <i class="fas fa-download"></i> Export CSV
+                            </button>
+                            <button class="btn-danger" id="clear-data-btn">
+                                <i class="fas fa-trash"></i> Hapus Semua Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Add Transaction Modal -->
+        <div class="modal" id="transaction-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modal-title">Tambah Transaksi</h3>
+                    <button class="modal-close" id="modal-close"><i class="fas fa-times"></i></button>
+                </div>
+                <form id="transaction-form">
+                    <div class="form-group">
+                        <label>Tipe</label>
+                        <div class="type-toggle">
+                            <button type="button" class="type-btn active" data-type="expense">Pengeluaran</button>
+                            <button type="button" class="type-btn" data-type="income">Pemasukan</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Nominal (Rp)</label>
+                        <input type="number" id="form-amount" placeholder="0" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Kategori</label>
+                        <select id="form-category" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Keterangan</label>
+                        <input type="text" id="form-note" placeholder="Catatan...">
+                    </div>
+                    <div class="form-group">
+                        <label>Tanggal</label>
+                        <input type="date" id="form-date" required>
+                    </div>
+                    <button type="submit" class="btn-primary full-width">
+                        <i class="fas fa-check"></i> Simpan
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Notification Toast -->
+        <div class="toast" id="toast"></div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/reminder.js"></script>
+</body>
+</html>
