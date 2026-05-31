@@ -3,60 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Duit Tracker Pro - Financial Tracker</title>
+    <title>Duit Tracker Pro - Financial Tracker Pasangan</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
-    <!-- LOGIN SCREEN -->
+    <!-- ===== LOGIN SCREEN ===== -->
     <div id="login-screen" class="screen active">
         <div class="login-container">
             <div class="login-left">
                 <div class="login-branding">
                     <div class="logo-icon"><i class="fas fa-wallet"></i></div>
                     <h1>Duit Tracker Pro</h1>
-                    <p>Kelola keuanganmu dengan cerdas.<br>Catat, analisa, dan capai target finansialmu.</p>
+                    <p>Kelola keuangan bersama pasangan.<br>Catat, analisa, dan capai target bareng!</p>
                 </div>
                 <div class="login-features">
-                    <div class="feature-item"><i class="fas fa-comments"></i><span>Chat Input - Sekali ketik langsung tercatat</span></div>
+                    <div class="feature-item"><i class="fas fa-heart"></i><span>Mode Pasangan - Catat bareng</span></div>
+                    <div class="feature-item"><i class="fas fa-sync"></i><span>Sync real-time antar device</span></div>
                     <div class="feature-item"><i class="fas fa-chart-pie"></i><span>Dashboard & Grafik otomatis</span></div>
-                    <div class="feature-item"><i class="fas fa-bell"></i><span>Reminder harian</span></div>
-                    <div class="feature-item"><i class="fas fa-users"></i><span>Multi-user support</span></div>
+                    <div class="feature-item"><i class="fas fa-comments"></i><span>Chat Input - Ketik langsung tercatat</span></div>
                 </div>
             </div>
             <div class="login-right">
                 <div class="login-form-container">
-                    <h2 id="login-title">Masuk</h2>
-                    <p class="login-subtitle" id="login-subtitle">Pilih atau buat akun untuk mulai</p>
-                    <div class="user-list" id="user-list"></div>
-                    <div class="login-divider"><span>atau buat akun baru</span></div>
-                    <div class="add-user-section">
-                        <input type="text" id="new-user-name" placeholder="Nama pengguna..." maxlength="20">
-                        <input type="password" id="new-user-pin" placeholder="PIN (4 digit)" maxlength="4" pattern="\d{4}">
-                        <button id="add-user-btn" class="btn-primary full-width"><i class="fas fa-user-plus"></i> Buat Akun</button>
+                    <div class="login-tabs">
+                        <button class="login-tab active" data-panel="create">Buat Baru</button>
+                        <button class="login-tab" data-panel="join">Gabung</button>
+                    </div>
+
+
+                    <!-- Create Panel -->
+                    <div class="login-panel active" id="panel-create">
+                        <h3>Buat Rumah Tangga Baru</h3>
+                        <p class="panel-desc">Buat akun, lalu share kode ke pasanganmu</p>
+                        <div class="form-group"><label>Nama Kamu</label><input type="text" id="create-name" placeholder="Contoh: Andi" maxlength="20"></div>
+                        <div class="form-group"><label>PIN (4 digit)</label><input type="password" id="create-pin" placeholder="****" maxlength="4"></div>
+                        <button id="create-btn" class="btn-primary full-width"><i class="fas fa-plus-circle"></i> Buat & Mulai</button>
+                    </div>
+
+                    <!-- Join Panel -->
+                    <div class="login-panel" id="panel-join">
+                        <h3>Gabung ke Pasangan</h3>
+                        <p class="panel-desc">Masukkan kode dari pasanganmu</p>
+                        <div class="form-group"><label>Kode Rumah Tangga</label><input type="text" id="join-code" placeholder="XXXXXX" maxlength="6" style="text-transform:uppercase;letter-spacing:3px;font-weight:700;text-align:center;"></div>
+                        <div class="form-group"><label>Nama Kamu</label><input type="text" id="join-name" placeholder="Contoh: Dina" maxlength="20"></div>
+                        <div class="form-group"><label>PIN (4 digit)</label><input type="password" id="join-pin" placeholder="****" maxlength="4"></div>
+                        <button id="join-btn" class="btn-primary full-width"><i class="fas fa-sign-in-alt"></i> Gabung</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- PIN MODAL -->
-    <div class="modal" id="pin-modal">
-        <div class="modal-content modal-sm">
-            <div class="modal-header">
-                <h3>Masukkan PIN</h3>
-                <button class="modal-close" id="pin-modal-close"><i class="fas fa-times"></i></button>
-            </div>
-            <p class="pin-user-label">User: <strong id="pin-user-name"></strong></p>
-            <input type="password" id="pin-input" class="pin-input" placeholder="****" maxlength="4" pattern="\d{4}">
-            <button id="pin-submit-btn" class="btn-primary full-width">Masuk</button>
-            <p class="pin-error" id="pin-error"></p>
+    <!-- ===== CODE SCREEN (after create) ===== -->
+    <div id="code-screen" class="screen">
+        <div class="code-container">
+            <div class="code-icon"><i class="fas fa-heart"></i></div>
+            <h2>Rumah Tangga Dibuat! 🎉</h2>
+            <p>Kirim kode ini ke pasanganmu supaya bisa bergabung:</p>
+            <div class="code-display" id="display-code">------</div>
+            <button id="copy-code-btn" class="btn-secondary"><i class="fas fa-copy"></i> Salin Kode</button>
+            <p class="code-hint">Pasanganmu bisa klik "Gabung" lalu masukkan kode di atas</p>
+            <button id="proceed-btn" class="btn-primary full-width"><i class="fas fa-arrow-right"></i> Lanjut ke Dashboard</button>
         </div>
     </div>
 
-    <!-- MAIN APP -->
+
+    <!-- ===== MAIN APP ===== -->
     <div id="app-screen" class="screen">
         <!-- Sidebar -->
         <nav class="sidebar" id="sidebar">
@@ -73,6 +90,14 @@
                 <a href="#" class="nav-item" data-page="insights"><i class="fas fa-lightbulb"></i><span>Insight</span></a>
                 <a href="#" class="nav-item" data-page="settings"><i class="fas fa-cog"></i><span>Pengaturan</span></a>
             </div>
+            <!-- Members section -->
+            <div class="sidebar-members">
+                <h4><i class="fas fa-users"></i> Anggota</h4>
+                <div id="members-list"></div>
+                <div class="household-info">
+                    <small>Kode: <strong id="household-code-display"></strong></small>
+                </div>
+            </div>
             <div class="sidebar-footer">
                 <button id="switch-user-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
             </div>
@@ -80,7 +105,6 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Top Bar -->
             <header class="topbar">
                 <button class="menu-toggle" id="menu-toggle"><i class="fas fa-bars"></i></button>
                 <div class="topbar-info">
@@ -88,116 +112,55 @@
                     <span class="current-user" id="current-user-display"></span>
                 </div>
                 <div class="topbar-actions">
+                    <!-- View mode toggle (couple) -->
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="all" title="Semua"><i class="fas fa-users"></i></button>
+                        <button class="view-btn" data-view="mine" title="Milik Saya"><i class="fas fa-user"></i></button>
+                        <button class="view-btn" data-view="partner" title="Pasangan"><i class="fas fa-heart"></i></button>
+                    </div>
                     <button id="theme-toggle" title="Dark/Light Mode"><i class="fas fa-moon"></i></button>
-                    <button id="notif-btn" title="Notifikasi"><i class="fas fa-bell"></i></button>
                 </div>
             </header>
 
-            <!-- ===== DASHBOARD PAGE ===== -->
+
+            <!-- ===== DASHBOARD ===== -->
             <section class="page active" id="page-dashboard">
-                <!-- Month/Year Selector -->
                 <div class="period-selector">
                     <div class="period-label"><i class="fas fa-calendar-alt"></i> Periode:</div>
                     <select id="dash-month"></select>
                     <select id="dash-year"></select>
                 </div>
-
-                <!-- Summary Cards -->
                 <div class="summary-cards four-cols">
-                    <div class="card card-income">
-                        <div class="card-icon"><i class="fas fa-arrow-down"></i></div>
-                        <div class="card-info">
-                            <span class="card-label">Total Pemasukan</span>
-                            <span class="card-value" id="total-income">Rp 0</span>
-                            <span class="card-vs" id="vs-income"></span>
-                        </div>
-                    </div>
-                    <div class="card card-expense">
-                        <div class="card-icon"><i class="fas fa-arrow-up"></i></div>
-                        <div class="card-info">
-                            <span class="card-label">Total Pengeluaran</span>
-                            <span class="card-value" id="total-expense">Rp 0</span>
-                            <span class="card-vs" id="vs-expense"></span>
-                        </div>
-                    </div>
-                    <div class="card card-balance">
-                        <div class="card-icon"><i class="fas fa-piggy-bank"></i></div>
-                        <div class="card-info">
-                            <span class="card-label">Sisa Saldo</span>
-                            <span class="card-value" id="total-balance">Rp 0</span>
-                            <span class="card-vs" id="vs-balance"></span>
-                        </div>
-                    </div>
-                    <div class="card card-count">
-                        <div class="card-icon"><i class="fas fa-receipt"></i></div>
-                        <div class="card-info">
-                            <span class="card-label">Total Transaksi</span>
-                            <span class="card-value" id="total-count">0</span>
-                            <span class="card-vs" id="vs-count"></span>
-                        </div>
-                    </div>
+                    <div class="card card-income"><div class="card-icon"><i class="fas fa-arrow-down"></i></div><div class="card-info"><span class="card-label">Total Pemasukan</span><span class="card-value" id="total-income">Rp 0</span><span class="card-vs" id="vs-income"></span></div></div>
+                    <div class="card card-expense"><div class="card-icon"><i class="fas fa-arrow-up"></i></div><div class="card-info"><span class="card-label">Total Pengeluaran</span><span class="card-value" id="total-expense">Rp 0</span><span class="card-vs" id="vs-expense"></span></div></div>
+                    <div class="card card-balance"><div class="card-icon"><i class="fas fa-piggy-bank"></i></div><div class="card-info"><span class="card-label">Sisa Saldo</span><span class="card-value" id="total-balance">Rp 0</span><span class="card-vs" id="vs-balance"></span></div></div>
+                    <div class="card card-count"><div class="card-icon"><i class="fas fa-receipt"></i></div><div class="card-info"><span class="card-label">Total Transaksi</span><span class="card-value" id="total-count">0</span><span class="card-vs" id="vs-count"></span></div></div>
                 </div>
-
-                <!-- Target Bar -->
                 <div class="target-bar-section">
                     <div class="target-label"><i class="fas fa-bullseye"></i> Target pengeluaran terisi</div>
-                    <div class="target-bar">
-                        <div class="target-fill" id="target-fill"></div>
-                    </div>
-                    <div class="target-values">
-                        <span id="target-current">Rp 0</span>
-                        <span id="target-max">/ Rp 0</span>
-                    </div>
+                    <div class="target-bar"><div class="target-fill" id="target-fill"></div></div>
+                    <div class="target-values"><span id="target-current">Rp 0</span><span id="target-max">/ Rp 0</span></div>
                 </div>
-
-                <!-- Mini Report + Daily Chart Row -->
                 <div class="dashboard-row">
-                    <div class="mini-report-card">
-                        <h3><i class="fas fa-clipboard-list"></i> Mini Reports</h3>
-                        <div id="mini-reports"></div>
-                    </div>
-                    <div class="chart-container flex-2">
-                        <h3><i class="fas fa-chart-line"></i> Grafik Pengeluaran Harian</h3>
-                        <canvas id="daily-chart"></canvas>
-                    </div>
+                    <div class="mini-report-card"><h3><i class="fas fa-clipboard-list"></i> Mini Reports</h3><div id="mini-reports"></div></div>
+                    <div class="chart-container flex-2"><h3><i class="fas fa-chart-line"></i> Grafik Harian</h3><canvas id="daily-chart"></canvas></div>
                 </div>
-
-                <!-- Bottom Row: Top Expenses + Category Pie + Comparison -->
                 <div class="dashboard-row three-cols">
-                    <div class="dash-card">
-                        <h3><i class="fas fa-fire"></i> Top Pengeluaran</h3>
-                        <div class="top-list" id="top-expenses-list"></div>
-                    </div>
-                    <div class="dash-card">
-                        <h3><i class="fas fa-chart-pie"></i> Kategori Pengeluaran</h3>
-                        <canvas id="category-chart"></canvas>
-                    </div>
-                    <div class="dash-card">
-                        <h3><i class="fas fa-balance-scale"></i> Bulan Ini vs Bulan Lalu</h3>
-                        <div class="comparison-list" id="comparison-list"></div>
-                    </div>
+                    <div class="dash-card"><h3><i class="fas fa-fire"></i> Top Pengeluaran</h3><div class="top-list" id="top-expenses-list"></div></div>
+                    <div class="dash-card"><h3><i class="fas fa-chart-pie"></i> Kategori</h3><canvas id="category-chart"></canvas></div>
+                    <div class="dash-card"><h3><i class="fas fa-balance-scale"></i> vs Bulan Lalu</h3><div class="comparison-list" id="comparison-list"></div></div>
                 </div>
-
-                <!-- 6 Month History -->
                 <div class="chart-container full-width">
                     <h3><i class="fas fa-chart-bar"></i> Keuangan 6 Bulan Terakhir</h3>
-                    <div class="history-table-wrapper">
-                        <table class="history-table" id="history-table">
-                            <thead><tr><th>Bulan</th><th>Pemasukan</th><th>Pengeluaran</th><th>Sisa Saldo</th><th>Transaksi</th></tr></thead>
-                            <tbody id="history-tbody"></tbody>
-                            <tfoot id="history-tfoot"></tfoot>
-                        </table>
-                    </div>
+                    <div class="history-table-wrapper"><table class="history-table"><thead><tr><th>Bulan</th><th>Pemasukan</th><th>Pengeluaran</th><th>Sisa Saldo</th><th>Transaksi</th></tr></thead><tbody id="history-tbody"></tbody><tfoot id="history-tfoot"></tfoot></table></div>
                     <canvas id="history-chart"></canvas>
                 </div>
             </section>
 
-            <!-- ===== TRANSACTIONS PAGE ===== -->
+
+            <!-- ===== TRANSACTIONS ===== -->
             <section class="page" id="page-transactions">
-                <div class="page-header">
-                    <h2>Semua Transaksi</h2>
-                    <button class="btn-primary" id="add-transaction-btn"><i class="fas fa-plus"></i> Tambah</button>
-                </div>
+                <div class="page-header"><h2>Semua Transaksi</h2><button class="btn-primary" id="add-transaction-btn"><i class="fas fa-plus"></i> Tambah</button></div>
                 <div class="filters">
                     <select id="filter-type"><option value="all">Semua Tipe</option><option value="income">Pemasukan</option><option value="expense">Pengeluaran</option></select>
                     <select id="filter-category"><option value="all">Semua Kategori</option></select>
@@ -206,23 +169,12 @@
                 <div class="transaction-list" id="all-transactions-list"></div>
             </section>
 
-            <!-- ===== CHAT INPUT PAGE ===== -->
+            <!-- ===== CHAT INPUT ===== -->
             <section class="page" id="page-chat">
                 <div class="chat-container">
-                    <div class="chat-header">
-                        <h2><i class="fas fa-robot"></i> Chat Input</h2>
-                        <p>Ketik transaksi dengan bahasa natural</p>
-                    </div>
+                    <div class="chat-header"><h2><i class="fas fa-robot"></i> Chat Input</h2><p>Ketik transaksi dengan bahasa natural</p></div>
                     <div class="chat-messages" id="chat-messages">
-                        <div class="chat-bubble bot">
-                            <p>Halo! Saya bisa bantu catat keuanganmu. Coba ketik seperti:</p>
-                            <ul>
-                                <li>"lapor pemasukan 5.000.000 gaji bulanan"</li>
-                                <li>"pengeluaran 50.000 makan siang"</li>
-                                <li>"keluar 200rb bensin"</li>
-                                <li>"masuk 1.5jt freelance"</li>
-                            </ul>
-                        </div>
+                        <div class="chat-bubble bot"><p>Halo! Catat keuangan cukup ketik:</p><ul><li>"pemasukan 5jt gaji"</li><li>"keluar 50rb makan siang"</li><li>"masuk 1.5jt freelance"</li><li>"bayar 200rb listrik"</li></ul></div>
                     </div>
                     <div class="chat-input-area">
                         <input type="text" id="chat-input" placeholder="Ketik transaksi..." autocomplete="off">
@@ -231,111 +183,54 @@
                 </div>
             </section>
 
-            <!-- ===== BUDGET 50/30/20 PAGE ===== -->
+            <!-- ===== BUDGET 50/30/20 ===== -->
             <section class="page" id="page-budget">
                 <h2><i class="fas fa-wallet"></i> Budgeting 50/30/20</h2>
                 <div class="budget-grid">
-                    <div class="budget-col needs-col">
-                        <h4>50% Kebutuhan</h4>
-                        <div class="budget-list" id="budget-needs-list"></div>
-                        <div class="budget-total" id="budget-needs-total">Rp 0</div>
-                    </div>
-                    <div class="budget-col wants-col">
-                        <h4>30% Keinginan</h4>
-                        <div class="budget-list" id="budget-wants-list"></div>
-                        <div class="budget-total" id="budget-wants-total">Rp 0</div>
-                    </div>
-                    <div class="budget-col savings-col">
-                        <h4>20% Investasi</h4>
-                        <div class="budget-list" id="budget-savings-list"></div>
-                        <div class="budget-total" id="budget-savings-total">Rp 0</div>
-                    </div>
+                    <div class="budget-col needs-col"><h4>50% Kebutuhan</h4><div class="budget-list" id="budget-needs-list"></div><div class="budget-total" id="budget-needs-total">Rp 0</div></div>
+                    <div class="budget-col wants-col"><h4>30% Keinginan</h4><div class="budget-list" id="budget-wants-list"></div><div class="budget-total" id="budget-wants-total">Rp 0</div></div>
+                    <div class="budget-col savings-col"><h4>20% Investasi</h4><div class="budget-list" id="budget-savings-list"></div><div class="budget-total" id="budget-savings-total">Rp 0</div></div>
                 </div>
                 <div class="budget-summary-section">
-                    <h3><i class="fas fa-percentage"></i> % Budget Yang Digunakan</h3>
-                    <div class="budget-usage-bar">
-                        <div class="budget-usage-fill" id="budget-usage-fill"></div>
-                        <span id="budget-usage-pct">0%</span>
-                    </div>
+                    <h3><i class="fas fa-percentage"></i> % Budget Digunakan</h3>
+                    <div class="budget-usage-bar"><div class="budget-usage-fill" id="budget-usage-fill"></div><span id="budget-usage-pct">0%</span></div>
                     <div class="budget-ratio-cards">
-                        <div class="ratio-card needs">
-                            <span class="ratio-target">50%</span>
-                            <span class="ratio-actual" id="ratio-needs-actual">0%</span>
-                            <span class="ratio-label">KEBUTUHAN</span>
-                        </div>
-                        <div class="ratio-card wants">
-                            <span class="ratio-target">30%</span>
-                            <span class="ratio-actual" id="ratio-wants-actual">0%</span>
-                            <span class="ratio-label">KEINGINAN</span>
-                        </div>
-                        <div class="ratio-card savings">
-                            <span class="ratio-target">20%</span>
-                            <span class="ratio-actual" id="ratio-savings-actual">0%</span>
-                            <span class="ratio-label">INVESTASI</span>
-                        </div>
+                        <div class="ratio-card needs"><span class="ratio-target">Target 50%</span><span class="ratio-actual" id="ratio-needs-actual">0%</span><span class="ratio-label">KEBUTUHAN</span></div>
+                        <div class="ratio-card wants"><span class="ratio-target">Target 30%</span><span class="ratio-actual" id="ratio-wants-actual">0%</span><span class="ratio-label">KEINGINAN</span></div>
+                        <div class="ratio-card savings"><span class="ratio-target">Target 20%</span><span class="ratio-actual" id="ratio-savings-actual">0%</span><span class="ratio-label">INVESTASI</span></div>
                     </div>
                 </div>
             </section>
 
-            <!-- ===== INSIGHTS PAGE ===== -->
+            <!-- ===== INSIGHTS ===== -->
             <section class="page" id="page-insights">
                 <div class="insights-container">
                     <h2><i class="fas fa-lightbulb"></i> Insight Keuangan</h2>
                     <div class="insight-cards" id="insight-cards"></div>
                     <div class="charts-grid">
-                        <div class="chart-container">
-                            <h3><i class="fas fa-chart-area"></i> Tren Pemasukan vs Pengeluaran</h3>
-                            <canvas id="trend-chart"></canvas>
-                        </div>
-                        <div class="chart-container">
-                            <h3><i class="fas fa-chart-bar"></i> Perbandingan Bulanan</h3>
-                            <canvas id="comparison-chart"></canvas>
-                        </div>
+                        <div class="chart-container"><h3><i class="fas fa-chart-area"></i> Tren 6 Bulan</h3><canvas id="trend-chart"></canvas></div>
+                        <div class="chart-container"><h3><i class="fas fa-chart-bar"></i> Perbandingan</h3><canvas id="comparison-chart"></canvas></div>
                     </div>
                 </div>
             </section>
 
-            <!-- ===== SETTINGS PAGE ===== -->
+            <!-- ===== SETTINGS ===== -->
             <section class="page" id="page-settings">
                 <div class="settings-container">
                     <h2><i class="fas fa-cog"></i> Pengaturan</h2>
-                    <div class="setting-group">
-                        <h3>Reminder Harian</h3>
-                        <div class="setting-item"><label><input type="checkbox" id="reminder-enabled"> Aktifkan reminder harian</label></div>
-                        <div class="setting-item"><label>Waktu:</label><input type="time" id="reminder-time" value="20:00"></div>
-                    </div>
-                    <div class="setting-group">
-                        <h3>Target Bulanan</h3>
-                        <div class="setting-item"><label>Target pengeluaran maks:</label><input type="number" id="budget-target" placeholder="6000000"></div>
-                        <div class="setting-item"><label>Target tabungan:</label><input type="number" id="savings-target" placeholder="1000000"></div>
-                        <button class="btn-primary" id="save-settings-btn"><i class="fas fa-save"></i> Simpan</button>
-                    </div>
-                    <div class="setting-group">
-                        <h3>Data</h3>
-                        <div class="setting-actions">
-                            <button class="btn-secondary" id="export-btn"><i class="fas fa-download"></i> Export CSV</button>
-                            <button class="btn-danger" id="clear-data-btn"><i class="fas fa-trash"></i> Hapus Semua Data</button>
-                        </div>
-                    </div>
+                    <div class="setting-group"><h3>Reminder Harian</h3><div class="setting-item"><label><input type="checkbox" id="reminder-enabled"> Aktifkan</label></div><div class="setting-item"><label>Waktu:</label><input type="time" id="reminder-time" value="20:00"></div></div>
+                    <div class="setting-group"><h3>Target Bulanan</h3><div class="setting-item"><label>Maks pengeluaran:</label><input type="number" id="budget-target" placeholder="6000000"></div><div class="setting-item"><label>Target tabungan:</label><input type="number" id="savings-target" placeholder="1000000"></div><button class="btn-primary" id="save-settings-btn"><i class="fas fa-save"></i> Simpan</button></div>
+                    <div class="setting-group"><h3>Data</h3><div class="setting-actions"><button class="btn-secondary" id="export-btn"><i class="fas fa-download"></i> Export CSV</button><button class="btn-danger" id="clear-data-btn"><i class="fas fa-trash"></i> Hapus Data</button></div></div>
                 </div>
             </section>
         </main>
 
-        <!-- Add Transaction Modal -->
+        <!-- Transaction Modal -->
         <div class="modal" id="transaction-modal">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h3 id="modal-title">Tambah Transaksi</h3>
-                    <button class="modal-close" id="modal-close"><i class="fas fa-times"></i></button>
-                </div>
+                <div class="modal-header"><h3>Tambah Transaksi</h3><button class="modal-close" id="modal-close"><i class="fas fa-times"></i></button></div>
                 <form id="transaction-form">
-                    <div class="form-group">
-                        <label>Tipe</label>
-                        <div class="type-toggle">
-                            <button type="button" class="type-btn active" data-type="expense">Pengeluaran</button>
-                            <button type="button" class="type-btn" data-type="income">Pemasukan</button>
-                        </div>
-                    </div>
+                    <div class="form-group"><label>Tipe</label><div class="type-toggle"><button type="button" class="type-btn active" data-type="expense">Pengeluaran</button><button type="button" class="type-btn" data-type="income">Pemasukan</button></div></div>
                     <div class="form-group"><label>Nominal (Rp)</label><input type="number" id="form-amount" placeholder="0" required min="1"></div>
                     <div class="form-group"><label>Kategori</label><select id="form-category" required></select></div>
                     <div class="form-group"><label>Keterangan</label><input type="text" id="form-note" placeholder="Catatan..."></div>
@@ -344,11 +239,10 @@
                 </form>
             </div>
         </div>
-
-        <!-- Toast -->
         <div class="toast" id="toast"></div>
     </div>
 
+    <script src="js/firebase-config.js"></script>
     <script src="js/app.js"></script>
     <script src="js/chat.js"></script>
     <script src="js/charts.js"></script>
