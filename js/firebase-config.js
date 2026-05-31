@@ -2,13 +2,14 @@
 // Duit Tracker Pro - Cloud Sync for Couples
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDxExample_REPLACE_WITH_YOUR_KEY",
-    authDomain: "duit-tracker-pro.firebaseapp.com",
-    databaseURL: "https://duit-tracker-pro-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "duit-tracker-pro",
-    storageBucket: "duit-tracker-pro.appspot.com",
-    messagingSenderId: "123456789",
-    appId: "1:123456789:web:abcdef123456"
+    apiKey: "AIzaSyDGnubltKfOV_sQ5iFpSN6qH249-h7nzJU",
+    authDomain: "cielfinance-750a5.firebaseapp.com",
+    databaseURL: "https://cielfinance-750a5-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "cielfinance-750a5",
+    storageBucket: "cielfinance-750a5.firebasestorage.app",
+    messagingSenderId: "425401784107",
+    appId: "1:425401784107:web:ee5a2d5f3854bb119ad76e",
+    measurementId: "G-RLYY06DC4T"
 };
 
 // Initialize Firebase
