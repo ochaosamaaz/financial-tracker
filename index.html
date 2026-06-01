@@ -87,6 +87,9 @@
                 <a href="#" class="nav-item" data-page="transactions"><i class="fas fa-exchange-alt"></i><span>Transaksi</span></a>
                 <a href="#" class="nav-item" data-page="chat"><i class="fas fa-comments"></i><span>Chat Input</span></a>
                 <a href="#" class="nav-item" data-page="budget"><i class="fas fa-wallet"></i><span>Budget 50/30/20</span></a>
+                <a href="#" class="nav-item" data-page="goals"><i class="fas fa-bullseye"></i><span>Target Tabungan</span></a>
+                <a href="#" class="nav-item" data-page="debts"><i class="fas fa-handshake"></i><span>Hutang/Piutang</span></a>
+                <a href="#" class="nav-item" data-page="wishlist"><i class="fas fa-star"></i><span>Wishlist</span></a>
                 <a href="#" class="nav-item" data-page="insights"><i class="fas fa-lightbulb"></i><span>Insight</span></a>
                 <a href="#" class="nav-item" data-page="settings"><i class="fas fa-cog"></i><span>Pengaturan</span></a>
             </div>
@@ -155,6 +158,8 @@
                     <div class="history-table-wrapper"><table class="history-table"><thead><tr><th>Bulan</th><th>Pemasukan</th><th>Pengeluaran</th><th>Sisa Saldo</th><th>Transaksi</th></tr></thead><tbody id="history-tbody"></tbody><tfoot id="history-tfoot"></tfoot></table></div>
                     <canvas id="history-chart"></canvas>
                 </div>
+                <!-- Weekly Report Sub-Feature -->
+                <div id="weekly-report-section" class="feature-sub-section"></div>
             </section>
 
 
@@ -167,6 +172,15 @@
                     <input type="month" id="filter-month">
                 </div>
                 <div class="transaction-list" id="all-transactions-list"></div>
+                <!-- Split Bill Sub-Feature -->
+                <div class="feature-sub-section">
+                    <h3 class="sub-feature-title"><i class="fas fa-receipt"></i> Split Bill</h3>
+                    <div id="splitbill-area"></div>
+                </div>
+                <!-- Recurring Transactions Sub-Feature -->
+                <div class="feature-sub-section">
+                    <div id="recurring-area"></div>
+                </div>
             </section>
 
             <!-- ===== CHAT INPUT ===== -->
@@ -202,6 +216,34 @@
                 </div>
             </section>
 
+            <!-- ===== TARGET TABUNGAN ===== -->
+            <section class="page" id="page-goals">
+                <div class="page-header">
+                    <h2><i class="fas fa-bullseye"></i> Target Tabungan</h2>
+                    <button class="btn-primary" id="add-goal-btn"><i class="fas fa-plus"></i> Tambah Target</button>
+                </div>
+                <div class="goals-grid" id="goals-list"></div>
+            </section>
+
+            <!-- ===== HUTANG / PIUTANG ===== -->
+            <section class="page" id="page-debts">
+                <div class="page-header">
+                    <h2><i class="fas fa-handshake"></i> Hutang / Piutang</h2>
+                    <button class="btn-primary" id="add-debt-btn"><i class="fas fa-plus"></i> Tambah</button>
+                </div>
+                <div class="debt-summary-cards"></div>
+                <div class="debts-list" id="debts-list"></div>
+            </section>
+
+            <!-- ===== WISHLIST BERSAMA ===== -->
+            <section class="page" id="page-wishlist">
+                <div class="page-header">
+                    <h2><i class="fas fa-star"></i> Wishlist Bersama</h2>
+                    <button class="btn-primary" id="add-wishlist-btn"><i class="fas fa-plus"></i> Tambah Item</button>
+                </div>
+                <div class="wishlist-grid" id="wishlist-list"></div>
+            </section>
+
             <!-- ===== INSIGHTS ===== -->
             <section class="page" id="page-insights">
                 <div class="insights-container">
@@ -211,6 +253,10 @@
                         <div class="chart-container"><h3><i class="fas fa-chart-area"></i> Tren 6 Bulan</h3><canvas id="trend-chart"></canvas></div>
                         <div class="chart-container"><h3><i class="fas fa-chart-bar"></i> Perbandingan</h3><canvas id="comparison-chart"></canvas></div>
                     </div>
+                    <!-- Partner Comparison Sub-Feature -->
+                    <div id="comparison-area" class="feature-sub-section"></div>
+                    <!-- Challenges & Achievements Sub-Feature -->
+                    <div id="challenges-area" class="feature-sub-section"></div>
                 </div>
             </section>
 
@@ -247,5 +293,7 @@
     <script src="js/chat.js"></script>
     <script src="js/charts.js"></script>
     <script src="js/reminder.js"></script>
+    <script src="js/features.js"></script>
+    <script src="js/features-ui.js"></script>
 </body>
 </html>

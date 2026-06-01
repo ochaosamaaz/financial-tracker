@@ -497,3 +497,264 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 
 /* ===== TX BY LABEL ===== */
 .tx-by { display: inline-block; font-size: 10px; background: var(--primary-light); color: var(--primary); padding: 1px 6px; border-radius: 4px; margin-left: 6px; font-weight: 600; }
+
+
+
+/* ===== PREMIUM FEATURES STYLES ===== */
+
+/* Feature Sub-Section Spacing */
+.feature-sub-section { margin-top: 24px; }
+.sub-feature-title { font-size: 16px; font-weight: 700; margin-bottom: 14px; color: var(--text); }
+.sub-feature-title i { color: var(--primary); margin-right: 8px; }
+
+/* ===== GOALS / SAVINGS TARGET ===== */
+.goals-summary { margin-bottom: 16px; }
+.goals-stats { display: flex; gap: 16px; font-size: 13px; color: var(--text-secondary); }
+.goals-stats i { margin-right: 4px; color: var(--primary); }
+.goals-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.goal-card {
+    background: var(--bg-card); border-radius: var(--radius); padding: 20px;
+    border: 1px solid var(--border); box-shadow: var(--shadow); transition: transform 0.2s;
+}
+.goal-card:hover { transform: translateY(-2px); }
+.goal-card.completed { border-color: var(--success); background: var(--success-light); }
+.goal-card.almost { border-color: var(--warning); }
+.goal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.goal-header h4 { font-size: 15px; font-weight: 700; }
+.goal-actions { display: flex; gap: 6px; }
+.goal-actions button {
+    width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--border);
+    background: var(--bg); cursor: pointer; color: var(--text-secondary); font-size: 12px;
+    display: flex; align-items: center; justify-content: center; transition: 0.2s;
+}
+.goal-actions button:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+
+.goal-progress-bar { height: 10px; background: var(--border); border-radius: 5px; overflow: hidden; margin-bottom: 8px; }
+.goal-progress-fill { height: 100%; border-radius: 5px; background: linear-gradient(90deg, var(--primary), #A78BFA); transition: width 0.5s; }
+.goal-card.completed .goal-progress-fill { background: linear-gradient(90deg, var(--success), #34D399); }
+.goal-info { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
+.goal-amount { color: var(--text-secondary); }
+.goal-pct { font-weight: 700; color: var(--primary); }
+.goal-meta { display: flex; gap: 12px; font-size: 12px; color: var(--text-secondary); }
+.goal-badge-done { color: var(--success); font-weight: 600; }
+
+/* ===== DEBT TRACKER ===== */
+.debt-summary-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.debt-summary-card {
+    background: var(--bg-card); border-radius: var(--radius-sm); padding: 16px 20px;
+    border: 1px solid var(--border); display: flex; align-items: center; gap: 12px;
+    box-shadow: var(--shadow);
+}
+.debt-summary-card i { font-size: 20px; }
+.debt-summary-card.hutang i { color: var(--danger); }
+.debt-summary-card.piutang i { color: var(--success); }
+.debt-summary-card span { font-size: 12px; color: var(--text-secondary); }
+.debt-summary-card strong { font-size: 18px; font-weight: 700; display: block; }
+.debt-section-title { font-size: 14px; font-weight: 700; margin: 16px 0 10px; color: var(--text); }
+.debt-section-title.paid-title { color: var(--text-secondary); }
+.debts-list { display: flex; flex-direction: column; gap: 10px; }
+.debt-card {
+    background: var(--bg-card); border-radius: var(--radius-sm); padding: 16px;
+    border: 1px solid var(--border); display: flex; align-items: center; gap: 14px;
+    box-shadow: var(--shadow); transition: 0.2s;
+}
+.debt-card:hover { transform: translateX(3px); }
+.debt-card.paid { opacity: 0.6; }
+
+
+.debt-type-badge {
+    writing-mode: vertical-rl; text-orientation: mixed; font-size: 10px;
+    font-weight: 700; letter-spacing: 1px; padding: 8px 4px;
+    border-radius: 4px; text-align: center;
+}
+.debt-type-badge.hutang { background: var(--danger-light); color: var(--danger); }
+.debt-type-badge.piutang { background: var(--success-light); color: var(--success); }
+.debt-content { flex: 1; }
+.debt-person { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+.debt-person i { margin-right: 6px; color: var(--text-secondary); }
+.debt-amount { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.debt-amount.hutang { color: var(--danger); }
+.debt-amount.piutang { color: var(--success); }
+.debt-note { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+.debt-footer { display: flex; gap: 10px; align-items: center; }
+.debt-status-badge { font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 600; }
+.debt-status-badge.unpaid { background: var(--warning-light); color: var(--warning); }
+.debt-status-badge.paid { background: var(--success-light); color: var(--success); }
+.debt-due { font-size: 11px; color: var(--text-secondary); }
+.debt-actions { display: flex; flex-direction: column; gap: 6px; }
+.debt-actions button {
+    width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border);
+    background: var(--bg); cursor: pointer; color: var(--text-secondary); font-size: 13px;
+    display: flex; align-items: center; justify-content: center; transition: 0.2s;
+}
+.debt-actions button:hover { background: var(--primary); color: white; border-color: var(--primary); }
+.btn-mark-paid:hover { background: var(--success) !important; border-color: var(--success) !important; }
+
+
+/* ===== SPLIT BILL ===== */
+.split-bill-form { background: var(--bg-card); border-radius: var(--radius); padding: 24px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+.split-members-check { display: flex; flex-wrap: wrap; gap: 10px; }
+.check-label { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; padding: 6px 12px; background: var(--bg); border-radius: 6px; border: 1px solid var(--border); }
+.check-label input { accent-color: var(--primary); }
+.split-result { margin-top: 20px; padding: 20px; background: var(--bg); border-radius: var(--radius-sm); border: 2px solid var(--primary-light); }
+.split-total { font-size: 16px; margin-bottom: 8px; }
+.split-paid-by { font-size: 13px; color: var(--text-secondary); margin-bottom: 14px; }
+.split-breakdown { display: flex; flex-direction: column; gap: 8px; }
+.split-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border); }
+.split-item.owes { border-left: 3px solid var(--warning); }
+.split-item.paid { border-left: 3px solid var(--success); }
+.split-name { font-weight: 600; flex: 1; font-size: 14px; }
+.split-amount { font-weight: 700; font-size: 14px; }
+.split-label { font-size: 11px; color: var(--text-secondary); }
+
+/* ===== RECURRING TRANSACTIONS ===== */
+.recurring-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.recurring-header h3 { font-size: 16px; font-weight: 700; }
+.recurring-header h3 i { color: var(--primary); margin-right: 8px; }
+.recurring-list { display: flex; flex-direction: column; gap: 10px; }
+.recurring-card {
+    background: var(--bg-card); border-radius: var(--radius-sm); padding: 16px;
+    border: 1px solid var(--border); display: flex; align-items: center; gap: 14px;
+    box-shadow: var(--shadow); transition: 0.2s;
+}
+.recurring-card.inactive { opacity: 0.5; }
+.recurring-card:hover { transform: translateX(3px); }
+.recurring-info { flex: 1; }
+.recurring-info h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.recurring-amount { font-weight: 700; font-size: 14px; margin-right: 12px; }
+.recurring-amount.income { color: var(--success); }
+.recurring-amount.expense { color: var(--danger); }
+.recurring-freq { font-size: 12px; color: var(--text-secondary); }
+.recurring-freq i { margin-right: 4px; }
+.recurring-actions { display: flex; gap: 6px; }
+.recurring-actions button {
+    width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border);
+    background: var(--bg); cursor: pointer; color: var(--text-secondary); font-size: 13px;
+    display: flex; align-items: center; justify-content: center; transition: 0.2s;
+}
+.recurring-actions button:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+
+/* ===== WEEKLY REPORT ===== */
+.weekly-report-container { background: var(--bg-card); border-radius: var(--radius); padding: 24px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+.weekly-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+.weekly-header h3 { font-size: 16px; font-weight: 700; }
+.weekly-header h3 i { color: var(--primary); margin-right: 8px; }
+.streak-badge { background: linear-gradient(135deg, #F59E0B, #EF4444); color: white; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+.weekly-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 14px; }
+.weekly-card {
+    background: var(--bg); border-radius: var(--radius-sm); padding: 16px;
+    text-align: center; border: 1px solid var(--border);
+}
+.weekly-card i { font-size: 20px; margin-bottom: 6px; display: block; }
+.weekly-card.income-card i { color: var(--success); }
+.weekly-card.expense-card i { color: var(--danger); }
+.weekly-card.savings-card i { color: var(--primary); }
+.weekly-card.avg-card i { color: var(--warning); }
+.weekly-card-label { display: block; font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+.weekly-card-value { display: block; font-size: 16px; font-weight: 700; }
+.weekly-top-cat { font-size: 13px; margin-top: 10px; padding: 10px; background: var(--bg); border-radius: 8px; }
+.weekly-top-cat i { color: var(--danger); margin-right: 6px; }
+.weekly-txcount { font-size: 12px; color: var(--text-secondary); margin-top: 8px; }
+.weekly-txcount i { margin-right: 6px; }
+
+/* ===== CHALLENGES & ACHIEVEMENTS ===== */
+.challenges-section { margin-bottom: 24px; }
+.challenges-section h3 { font-size: 16px; font-weight: 700; margin-bottom: 14px; }
+.challenges-section h3 i { color: var(--warning); margin-right: 8px; }
+.challenge-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.challenge-card {
+    background: var(--bg-card); border-radius: var(--radius-sm); padding: 16px;
+    border: 1px solid var(--border); display: flex; gap: 12px; align-items: flex-start;
+    box-shadow: var(--shadow); transition: 0.2s;
+}
+.challenge-card.completed { border-color: var(--success); background: var(--success-light); }
+.challenge-icon { font-size: 24px; min-width: 36px; text-align: center; }
+.challenge-info { flex: 1; }
+.challenge-info h4 { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.challenge-info p { font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; }
+.challenge-progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.challenge-progress-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--warning), #F59E0B); transition: width 0.5s; }
+.challenge-card.completed .challenge-progress-fill { background: linear-gradient(90deg, var(--success), #34D399); }
+
+
+.achievements-section { margin-top: 20px; }
+.achievements-section h3 { font-size: 16px; font-weight: 700; margin-bottom: 14px; }
+.achievements-section h3 i { color: var(--warning); margin-right: 8px; }
+.achievements-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.achievement-badge {
+    background: var(--bg-card); border-radius: var(--radius-sm); padding: 16px;
+    text-align: center; border: 2px solid var(--border); transition: 0.2s;
+}
+.achievement-badge.earned { border-color: var(--warning); background: var(--warning-light); }
+.achievement-badge.locked { opacity: 0.4; filter: grayscale(1); }
+.achievement-icon { font-size: 28px; display: block; margin-bottom: 6px; }
+.achievement-name { display: block; font-size: 12px; font-weight: 700; margin-bottom: 2px; }
+.achievement-desc { display: block; font-size: 10px; color: var(--text-secondary); line-height: 1.4; }
+.achievement-date { display: block; font-size: 10px; color: var(--success); margin-top: 4px; font-weight: 600; }
+
+/* ===== WISHLIST ===== */
+.wishlist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.wishlist-card {
+    background: var(--bg-card); border-radius: var(--radius); padding: 20px;
+    border: 1px solid var(--border); box-shadow: var(--shadow); position: relative;
+    transition: transform 0.2s;
+}
+.wishlist-card:hover { transform: translateY(-2px); }
+.wishlist-card.purchased { border-color: var(--success); opacity: 0.7; }
+.wishlist-priority {
+    position: absolute; top: 12px; right: 12px; font-size: 10px;
+    padding: 3px 8px; border-radius: 12px; font-weight: 700; letter-spacing: 0.5px;
+}
+.wishlist-priority.high { background: var(--danger-light); color: var(--danger); }
+.wishlist-priority.medium { background: var(--warning-light); color: var(--warning); }
+.wishlist-priority.low { background: var(--primary-light); color: var(--primary); }
+.wishlist-content h4 { font-size: 15px; font-weight: 700; margin-bottom: 6px; padding-right: 60px; }
+.wishlist-price { font-size: 18px; font-weight: 700; color: var(--primary); margin-bottom: 10px; }
+.wishlist-progress-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 6px; }
+.wishlist-progress-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--success), #34D399); transition: width 0.5s; }
+.wishlist-progress-text { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+.wishlist-added-by { font-size: 11px; color: var(--text-secondary); }
+.wishlist-added-by i { margin-right: 4px; }
+.wishlist-actions { display: flex; gap: 6px; margin-top: 12px; }
+.wishlist-actions button {
+    width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border);
+    background: var(--bg); cursor: pointer; color: var(--text-secondary); font-size: 13px;
+    display: flex; align-items: center; justify-content: center; transition: 0.2s;
+}
+.wishlist-actions button:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+
+/* ===== PARTNER COMPARISON ===== */
+.partner-comparison { background: var(--bg-card); border-radius: var(--radius); padding: 24px; border: 1px solid var(--border); box-shadow: var(--shadow); margin-top: 16px; }
+.partner-totals { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+.partner-total-card {
+    display: flex; align-items: center; gap: 10px; padding: 14px 20px;
+    background: var(--bg); border-radius: var(--radius-sm); border: 1px solid var(--border); flex: 1; min-width: 180px;
+}
+.partner-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), #EC4899); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px; }
+.partner-name { font-weight: 600; font-size: 14px; }
+.partner-amount { font-weight: 700; font-size: 16px; margin-left: auto; }
+.partner-chart-area { margin: 16px 0; min-height: 200px; }
+.partner-detail-list { max-height: 300px; overflow-y: auto; }
+.partner-cat-row { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.partner-cat-row:last-child { border-bottom: none; }
+.partner-cat-name { flex: 1; font-weight: 500; }
+.partner-cat-val { min-width: 90px; text-align: right; font-weight: 600; }
+
+/* ===== RESPONSIVE ADDITIONS ===== */
+@media (max-width: 768px) {
+    .goals-grid { grid-template-columns: 1fr; }
+    .wishlist-grid { grid-template-columns: 1fr; }
+    .debt-summary-cards { grid-template-columns: 1fr; }
+    .challenge-list { grid-template-columns: 1fr; }
+    .achievements-grid { grid-template-columns: repeat(3, 1fr); }
+    .weekly-cards { grid-template-columns: repeat(2, 1fr); }
+    .partner-totals { flex-direction: column; }
+    .split-members-check { flex-direction: column; }
+}
+@media (max-width: 480px) {
+    .achievements-grid { grid-template-columns: repeat(2, 1fr); }
+    .weekly-cards { grid-template-columns: 1fr; }
+}
