@@ -99,13 +99,16 @@ class DuitTracker {
             return;
         }
 
+        const avatar = typeof getSelectedAvatar === 'function' ? getSelectedAvatar('create-avatar-picker') : '😊';
+
         try {
             this.showToast('Membuat rumah tangga...');
-            const code = await fireSync.createHousehold(name, pin);
+            const code = await fireSync.createHousehold(name, pin, avatar);
             this.householdCode = code;
             this.currentUser = name;
             this.members = await fireSync.getMembers();
             localStorage.setItem('duit_current_user', name);
+            localStorage.setItem('duit_avatar', avatar);
             this.showHouseholdCode(code);
         } catch (e) {
             console.error('createHousehold error:', e);
@@ -127,13 +130,16 @@ class DuitTracker {
             return;
         }
 
+        const avatar = typeof getSelectedAvatar === 'function' ? getSelectedAvatar('join-avatar-picker') : '😊';
+
         try {
             this.showToast('Bergabung...');
-            await fireSync.joinHousehold(code, name, pin);
+            await fireSync.joinHousehold(code, name, pin, avatar);
             this.householdCode = code;
             this.currentUser = name;
             this.members = await fireSync.getMembers();
             localStorage.setItem('duit_current_user', name);
+            localStorage.setItem('duit_avatar', avatar);
             this.startListening();
             this.enterApp();
             this.showToast('Berhasil bergabung! 🎉');
@@ -181,20 +187,47 @@ class DuitTracker {
         this.initPeriodSelector();
         this.updateMembersList();
         this.loadSettings();
+        // Show skeleton then load
+        this.showDashboardSkeleton();
         this.refreshAll();
+        this.hideDashboardSkeleton();
         if (typeof initReminder === 'function') initReminder(this);
+        // Set avatar in settings picker
+        const savedAvatar = localStorage.getItem('duit_avatar') || '😊';
+        if (typeof setPickerAvatar === 'function') {
+            setPickerAvatar('settings-avatar-picker', savedAvatar);
+        }
+    }
+
+    showDashboardSkeleton() {
+        const skeleton = document.getElementById('dashboard-skeleton');
+        const content = document.getElementById('dashboard-content');
+        if (skeleton) skeleton.classList.remove('hidden');
+        if (content) content.style.display = 'none';
+    }
+
+    hideDashboardSkeleton() {
+        setTimeout(() => {
+            const skeleton = document.getElementById('dashboard-skeleton');
+            const content = document.getElementById('dashboard-content');
+            if (skeleton) skeleton.classList.add('hidden');
+            if (content) content.style.display = 'block';
+        }, 600);
     }
 
     updateMembersList() {
         const el = document.getElementById('members-list');
         if (!el) return;
-        el.innerHTML = this.members.map(m => `
+        el.innerHTML = this.members.map(m => {
+            const avatar = m.avatar || m.name.charAt(0).toUpperCase();
+            const isEmoji = /\p{Emoji}/u.test(avatar) && avatar.length <= 2;
+            return `
             <div class="member-badge ${m.name === this.currentUser ? 'me' : ''}">
-                <div class="member-avatar">${m.name.charAt(0).toUpperCase()}</div>
+                <div class="member-avatar">${isEmoji ? avatar : avatar.charAt(0).toUpperCase()}</div>
                 <span>${m.name}${m.name === this.currentUser ? ' (Kamu)' : ''}</span>
                 <span class="member-role">${m.role === 'owner' ? '👑' : '💑'}</span>
             </div>
-        `).join('');
+        `}).join('');
     }
 
     logout() {
@@ -527,7 +560,12 @@ class DuitTracker {
         const catInfo = this.getCategoryInfo(t.category, t.type);
         const icon = catInfo ? catInfo.icon : 'fa-circle';
         const catName = catInfo ? catInfo.name : t.category;
-        const byLabel = (this.members.length > 1 && t.addedBy) ? `<span class="tx-by">${t.addedBy}</span>` : '';
+        let byLabel = '';
+        if (this.members.length > 1 && t.addedBy) {
+            const member = this.members.find(m => m.name === t.addedBy);
+            const avatar = member && member.avatar ? member.avatar : '';
+            byLabel = `<span class="tx-by">${avatar ? avatar + ' ' : ''}${t.addedBy}</span>`;
+        }
         return `<div class="transaction-item">
             <div class="transaction-icon ${t.type}"><i class="fas ${icon}"></i></div>
             <div class="transaction-details"><div class="tx-category">${catName} ${byLabel}</div><div class="tx-note">${t.note||'-'}</div></div>
@@ -752,8 +790,78 @@ class DuitTracker {
             navigator.clipboard.writeText(this.householdCode);
             this.showToast('Kode disalin! Kirim ke pasanganmu 💑');
         });
+        // Save avatar from settings
+        document.getElementById('save-avatar-btn')?.addEventListener('click', () => this.saveAvatar());
         this.populateFilterCategories();
     }
+
+    async saveAvatar() {
+        const avatar = typeof getSelectedAvatar === 'function' ? getSelectedAvatar('settings-avatar-picker') : '😊';
+        localStorage.setItem('duit_avatar', avatar);
+        // Update in Firebase if connected
+        if (this.useFirebase && fireSync.isConnected() && this.currentUser) {
+            try {
+                const membersRef = db.ref(`households/${this.householdCode}/members`);
+                const snapshot = await membersRef.once('value');
+                const members = snapshot.val();
+                if (members) {
+                    for (const [key, member] of Object.entries(members)) {
+                        if (member.name === this.currentUser) {
+                            await membersRef.child(key).update({ avatar });
+                            break;
+                        }
+                    }
+                }
+                this.members = await fireSync.getMembers();
+            } catch (e) {
+                console.log('Save avatar error:', e);
+            }
+        }
+        this.updateMembersList();
+        this.showToast('Avatar disimpan! ' + avatar);
+    }
+}
+
+// Avatar Picker functionality
+const AVATAR_EMOJIS = ['😊','😎','🦊','🐱','🐶','🦁','🐼','🦄','🌸','🌟','⚡','🔥','💎','🎯','🏆','🎨','🎵','🍕','🚀','💪'];
+
+function initAvatarPickers() {
+    const pickers = ['create-avatar-picker', 'join-avatar-picker', 'settings-avatar-picker'];
+    pickers.forEach(pickerId => {
+        const el = document.getElementById(pickerId);
+        if (!el) return;
+        el.innerHTML = AVATAR_EMOJIS.map(emoji =>
+            `<div class="avatar-option" data-emoji="${emoji}">${emoji}</div>`
+        ).join('');
+        el.addEventListener('click', (e) => {
+            const option = e.target.closest('.avatar-option');
+            if (!option) return;
+            el.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('selected'));
+            option.classList.add('selected');
+        });
+    });
+}
+
+function getSelectedAvatar(pickerId) {
+    const el = document.getElementById(pickerId);
+    if (!el) return '😊';
+    const selected = el.querySelector('.avatar-option.selected');
+    return selected ? selected.dataset.emoji : '😊';
+}
+
+function setPickerAvatar(pickerId, emoji) {
+    const el = document.getElementById(pickerId);
+    if (!el) return;
+    el.querySelectorAll('.avatar-option').forEach(o => {
+        o.classList.toggle('selected', o.dataset.emoji === emoji);
+    });
+}
+
+// Initialize when DOM ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAvatarPickers);
+} else {
+    initAvatarPickers();
 }
 
 // Initialize when DOM is ready

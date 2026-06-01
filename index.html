@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CielFinanceTools - Financial Tracker Pasangan</title>
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#6C63FF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CielFinance">
+    <meta name="application-name" content="CielFinanceTools">
+    <meta name="msapplication-TileColor" content="#6C63FF">
+    <meta name="description" content="Kelola keuangan bersama pasangan. Catat, analisa, dan capai target bareng!">
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='32' fill='%236C63FF'/%3E%3Ctext x='96' y='120' text-anchor='middle' font-size='80' fill='white'%3E💰%3C/text%3E%3C/svg%3E">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -41,6 +52,7 @@
                         <h3>Buat Rumah Tangga Baru</h3>
                         <p class="panel-desc">Buat akun, lalu share kode ke pasanganmu</p>
                         <div class="form-group"><label>Nama Kamu</label><input type="text" id="create-name" placeholder="Contoh: Andi" maxlength="20"></div>
+                        <div class="form-group"><label>Pilih Avatar</label><div class="avatar-picker" id="create-avatar-picker"></div></div>
                         <div class="form-group"><label>PIN (4 digit)</label><input type="password" id="create-pin" placeholder="****" maxlength="4"></div>
                         <button id="create-btn" class="btn-primary full-width"><i class="fas fa-plus-circle"></i> Buat & Mulai</button>
                     </div>
@@ -51,6 +63,7 @@
                         <p class="panel-desc">Masukkan kode dari pasanganmu</p>
                         <div class="form-group"><label>Kode Rumah Tangga</label><input type="text" id="join-code" placeholder="XXXXXX" maxlength="6" style="text-transform:uppercase;letter-spacing:3px;font-weight:700;text-align:center;"></div>
                         <div class="form-group"><label>Nama Kamu</label><input type="text" id="join-name" placeholder="Contoh: Dina" maxlength="20"></div>
+                        <div class="form-group"><label>Pilih Avatar</label><div class="avatar-picker" id="join-avatar-picker"></div></div>
                         <div class="form-group"><label>PIN (4 digit)</label><input type="password" id="join-pin" placeholder="****" maxlength="4"></div>
                         <button id="join-btn" class="btn-primary full-width"><i class="fas fa-sign-in-alt"></i> Gabung</button>
                     </div>
@@ -128,6 +141,19 @@
 
             <!-- ===== DASHBOARD ===== -->
             <section class="page active" id="page-dashboard">
+                <!-- Skeleton Loading -->
+                <div class="skeleton-wrapper" id="dashboard-skeleton">
+                    <div class="skeleton-cards four-cols">
+                        <div class="skeleton-card"><div class="skeleton-circle"></div><div class="skeleton-text-group"><div class="skeleton skeleton-text" style="width:60%"></div><div class="skeleton skeleton-text" style="width:80%"></div></div></div>
+                        <div class="skeleton-card"><div class="skeleton-circle"></div><div class="skeleton-text-group"><div class="skeleton skeleton-text" style="width:60%"></div><div class="skeleton skeleton-text" style="width:80%"></div></div></div>
+                        <div class="skeleton-card"><div class="skeleton-circle"></div><div class="skeleton-text-group"><div class="skeleton skeleton-text" style="width:60%"></div><div class="skeleton skeleton-text" style="width:80%"></div></div></div>
+                        <div class="skeleton-card"><div class="skeleton-circle"></div><div class="skeleton-text-group"><div class="skeleton skeleton-text" style="width:60%"></div><div class="skeleton skeleton-text" style="width:80%"></div></div></div>
+                    </div>
+                    <div class="skeleton-card" style="height:80px;margin-top:16px"></div>
+                    <div class="skeleton-card" style="height:200px;margin-top:16px"></div>
+                </div>
+                <!-- End Skeleton -->
+                <div id="dashboard-content">
                 <div class="period-selector">
                     <div class="period-label"><i class="fas fa-calendar-alt"></i> Periode:</div>
                     <select id="dash-month"></select>
@@ -139,6 +165,8 @@
                     <div class="card card-balance"><div class="card-icon"><i class="fas fa-piggy-bank"></i></div><div class="card-info"><span class="card-label">Sisa Saldo</span><span class="card-value" id="total-balance">Rp 0</span><span class="card-vs" id="vs-balance"></span></div></div>
                     <div class="card card-count"><div class="card-icon"><i class="fas fa-receipt"></i></div><div class="card-info"><span class="card-label">Total Transaksi</span><span class="card-value" id="total-count">0</span><span class="card-vs" id="vs-count"></span></div></div>
                 </div>
+                <!-- Health Score Section -->
+                <div id="health-score-section"></div>
                 <div class="target-bar-section">
                     <div class="target-label"><i class="fas fa-bullseye"></i> Target pengeluaran terisi</div>
                     <div class="target-bar"><div class="target-fill" id="target-fill"></div></div>
@@ -160,6 +188,7 @@
                 </div>
                 <!-- Weekly Report Sub-Feature -->
                 <div id="weekly-report-section" class="feature-sub-section"></div>
+                </div><!-- end dashboard-content -->
             </section>
 
 
@@ -265,6 +294,7 @@
                 <div class="settings-container">
                     <h2><i class="fas fa-cog"></i> Pengaturan</h2>
                     <div class="setting-group"><h3>Reminder Harian</h3><div class="setting-item"><label><input type="checkbox" id="reminder-enabled"> Aktifkan</label></div><div class="setting-item"><label>Waktu:</label><input type="time" id="reminder-time" value="20:00"></div></div>
+                    <div class="setting-group"><h3>Avatar</h3><p style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;">Pilih emoji avatar kamu</p><div class="avatar-picker" id="settings-avatar-picker"></div><button class="btn-primary" id="save-avatar-btn" style="margin-top:12px;"><i class="fas fa-save"></i> Simpan Avatar</button></div>
                     <div class="setting-group"><h3>Target Bulanan</h3><div class="setting-item"><label>Maks pengeluaran:</label><input type="number" id="budget-target" placeholder="6000000"></div><div class="setting-item"><label>Target tabungan:</label><input type="number" id="savings-target" placeholder="1000000"></div><button class="btn-primary" id="save-settings-btn"><i class="fas fa-save"></i> Simpan</button></div>
                     <div class="setting-group"><h3>Data</h3><div class="setting-actions"><button class="btn-secondary" id="export-btn"><i class="fas fa-download"></i> Export CSV</button><button class="btn-danger" id="clear-data-btn"><i class="fas fa-trash"></i> Hapus Data</button></div></div>
                 </div>
@@ -295,5 +325,17 @@
     <script src="js/reminder.js"></script>
     <script src="js/features.js"></script>
     <script src="js/features-ui.js"></script>
+    <script src="js/health-score.js"></script>
+    <script src="js/onboarding.js"></script>
+    <script>
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('[PWA] SW registered:', reg.scope))
+                    .catch(err => console.log('[PWA] SW registration failed:', err));
+            });
+        }
+    </script>
 </body>
 </html>

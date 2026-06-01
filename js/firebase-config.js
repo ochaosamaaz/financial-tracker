@@ -41,7 +41,7 @@ class FirebaseSync {
     }
 
     // Create a new household (couple/family)
-    async createHousehold(ownerName, pin) {
+    async createHousehold(ownerName, pin, avatar) {
         const code = this.generateHouseholdCode();
         const householdData = {
             code,
@@ -51,6 +51,7 @@ class FirebaseSync {
                     name: ownerName,
                     pin,
                     role: 'owner',
+                    avatar: avatar || '😊',
                     joinedAt: new Date().toISOString()
                 }
             },
@@ -70,7 +71,7 @@ class FirebaseSync {
     }
 
     // Join existing household with code
-    async joinHousehold(code, memberName, pin) {
+    async joinHousehold(code, memberName, pin, avatar) {
         code = code.toUpperCase().trim();
         const snapshot = await db.ref(`households/${code}`).once('value');
         if (!snapshot.exists()) {
@@ -90,6 +91,7 @@ class FirebaseSync {
             name: memberName,
             pin,
             role: 'member',
+            avatar: avatar || '😊',
             joinedAt: new Date().toISOString()
         });
 
