@@ -4,7 +4,7 @@
 const firebaseConfig = {
     apiKey: "AIzaSyDGnubltKfOV_sQ5iFpSN6qH249-h7nzJU",
     authDomain: "cielfinance-750a5.firebaseapp.com",
-    databaseURL: "https://cielfinance-750a5-default-rtdb.asia-southeast1.firebasedatabase.app",
+    databaseURL: "https://cielfinance-750a5-default-rtdb.firebaseio.com",
     projectId: "cielfinance-750a5",
     storageBucket: "cielfinance-750a5.firebasestorage.app",
     messagingSenderId: "425401784107",
