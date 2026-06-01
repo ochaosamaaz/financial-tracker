@@ -1,5 +1,5 @@
 // ===== PREMIUM FEATURES MODULE =====
-// Duit Tracker Pro - Extended Features
+// CielFinanceTools - Extended Features
 
 class PremiumFeatures {
     constructor(appInstance) {

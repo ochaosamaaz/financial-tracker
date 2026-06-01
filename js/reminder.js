@@ -44,7 +44,7 @@ function showReminderNotification(tracker) {
 
     // Browser notification
     if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification('Duit Tracker Pro', { body: message.replace(/[📝✅💰]/g, ''), icon: '💰' });
+        new Notification('CielFinanceTools', { body: message.replace(/[📝✅💰]/g, ''), icon: '💰' });
     }
 }
 

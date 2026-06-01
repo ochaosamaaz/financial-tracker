@@ -1,5 +1,5 @@
 // ===== FIREBASE CONFIGURATION =====
-// Duit Tracker Pro - Cloud Sync for Couples
+// CielFinanceTools - Cloud Sync for Couples
 
 const firebaseConfig = {
     apiKey: "AIzaSyDGnubltKfOV_sQ5iFpSN6qH249-h7nzJU",

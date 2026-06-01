@@ -1,4 +1,4 @@
-// ===== DUIT TRACKER PRO - Main App with Firebase Sync =====
+// ===== CIELFINANCETOOLS - Main App with Firebase Sync =====
 
 const CATEGORIES = {
     expense: {
