@@ -93,6 +93,12 @@ class DuitTracker {
         if (!pin || pin.length !== 4 || !/^\d{4}$/.test(pin))
             return this.showToast('PIN harus 4 digit!');
 
+        // Check if Firebase is available
+        if (!firebaseReady || !db) {
+            this.showToast('Firebase belum siap. Coba refresh halaman.');
+            return;
+        }
+
         try {
             this.showToast('Membuat rumah tangga...');
             const code = await fireSync.createHousehold(name, pin);
@@ -102,7 +108,8 @@ class DuitTracker {
             localStorage.setItem('duit_current_user', name);
             this.showHouseholdCode(code);
         } catch (e) {
-            this.showToast('Gagal: ' + e.message);
+            console.error('createHousehold error:', e);
+            this.showToast('Gagal: ' + (e.message || 'Cek koneksi internet'));
         }
     }
 
@@ -114,6 +121,11 @@ class DuitTracker {
         if (!name) return this.showToast('Masukkan nama!');
         if (!pin || pin.length !== 4 || !/^\d{4}$/.test(pin))
             return this.showToast('PIN harus 4 digit!');
+
+        if (!firebaseReady || !db) {
+            this.showToast('Firebase belum siap. Coba refresh halaman.');
+            return;
+        }
 
         try {
             this.showToast('Bergabung...');
@@ -744,5 +756,10 @@ class DuitTracker {
     }
 }
 
-// Initialize
-const app = new DuitTracker();
+// Initialize when DOM is ready
+let app;
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => { app = new DuitTracker(); });
+} else {
+    app = new DuitTracker();
+}

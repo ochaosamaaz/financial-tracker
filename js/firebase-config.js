@@ -12,9 +12,18 @@ const firebaseConfig = {
     measurementId: "G-RLYY06DC4T"
 };
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+// Initialize Firebase (with error handling)
+let db = null;
+let firebaseReady = false;
+try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.database();
+    firebaseReady = true;
+    console.log('Firebase connected successfully');
+} catch (e) {
+    console.warn('Firebase init failed:', e.message);
+    firebaseReady = false;
+}
 
 // ===== FIREBASE SYNC CLASS =====
 class FirebaseSync {
