@@ -308,14 +308,16 @@ class PlannerManager {
 let plannerManager = null;
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
-        plannerManager = new PlannerManager(app);
-        // Hook into login
-        const origLogin = app.loginUser.bind(app);
-        app.loginUser = function(name) {
-            origLogin(name);
-            if (plannerManager) plannerManager.refresh();
-        };
-        // If already logged in
-        if (app.currentUser) plannerManager.refresh();
-    }, 150);
+        if (typeof app !== 'undefined') {
+            plannerManager = new PlannerManager(app);
+            // Hook into enterApp
+            const origEnter = app.enterApp.bind(app);
+            app.enterApp = function() {
+                origEnter();
+                if (plannerManager) plannerManager.refresh();
+            };
+            // If already logged in
+            if (app.currentUser) plannerManager.refresh();
+        }
+    }, 600);
 });

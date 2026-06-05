@@ -5,7 +5,6 @@ let categoryChart = null;
 let historyChart = null;
 let trendChart = null;
 let comparisonChart = null;
-let dailySavingsChart = null;
 
 function updateCharts(tracker) {
     updateDailyChart(tracker);
@@ -13,7 +12,6 @@ function updateCharts(tracker) {
     updateHistoryChart(tracker);
     updateTrendChart(tracker);
     updateComparisonChart(tracker);
-    updateDailySavingsChart(tracker);
 }
 
 function getChartColors() {
@@ -285,130 +283,6 @@ function updateComparisonChart(tracker) {
             scales: {
                 x: { ticks: { color: colors.text }, grid: { display: false } },
                 y: { ticks: { color: colors.text, callback: v => 'Rp' + (v / 1000000).toFixed(1) + 'jt' }, grid: { color: colors.grid } }
-            }
-        }
-    });
-}
-
-
-
-function updateDailySavingsChart(tracker) {
-    const ctx = document.getElementById('daily-savings-chart');
-    if (!ctx) return;
-
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const today = now.getDate();
-
-    // Get savings transactions for current month
-    const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
-    const savingsIds = ['tabungan', 'investasi', 'dana_darurat'];
-    const savingsTx = tracker.transactions.filter(t => 
-        t.date && t.date.startsWith(monthKey) && 
-        t.type === 'expense' && 
-        savingsIds.includes(t.category)
-    );
-
-    // Build daily data
-    const dailyData = [];
-    const labels = [];
-    let totalSavings = 0;
-    let daysWithSavings = 0;
-
-    for (let day = 1; day <= Math.min(today, daysInMonth); day++) {
-        const dateStr = `${monthKey}-${String(day).padStart(2, '0')}`;
-        const dayTotal = savingsTx
-            .filter(t => t.date === dateStr)
-            .reduce((sum, t) => sum + t.amount, 0);
-        
-        dailyData.push(dayTotal);
-        labels.push(`${day}`);
-        totalSavings += dayTotal;
-        if (dayTotal > 0) daysWithSavings++;
-    }
-
-    // Calculate average (per days that have passed)
-    const avgPerDay = today > 0 ? Math.round(totalSavings / today) : 0;
-    const avgPerSavingDay = daysWithSavings > 0 ? Math.round(totalSavings / daysWithSavings) : 0;
-
-    // Update stats
-    document.getElementById('savings-total-month').textContent = tracker.formatMoney(totalSavings);
-    document.getElementById('savings-daily-avg').textContent = tracker.formatMoney(avgPerDay);
-    document.getElementById('savings-days-count').textContent = `${daysWithSavings} hari`;
-
-    const chartColors = getChartColors();
-
-    if (dailySavingsChart) dailySavingsChart.destroy();
-
-    // Create average line data
-    const avgLine = dailyData.map(() => avgPerDay);
-
-    dailySavingsChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Tabungan Harian',
-                    data: dailyData,
-                    backgroundColor: dailyData.map(v => v > 0 ? 'rgba(37, 99, 235, 0.7)' : 'rgba(226, 232, 240, 0.3)'),
-                    borderColor: dailyData.map(v => v > 0 ? '#2563EB' : 'transparent'),
-                    borderWidth: 1,
-                    borderRadius: 4,
-                    order: 2
-                },
-                {
-                    label: `Rata-rata (${tracker.formatMoney(avgPerDay)}/hari)`,
-                    data: avgLine,
-                    type: 'line',
-                    borderColor: '#F59E0B',
-                    borderWidth: 2,
-                    borderDash: [6, 4],
-                    pointRadius: 0,
-                    fill: false,
-                    order: 1
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            plugins: {
-                legend: {
-                    labels: { color: chartColors.text, usePointStyle: true, font: { size: 12 } }
-                },
-                tooltip: {
-                    callbacks: {
-                        title: (items) => `Tanggal ${items[0].label} ${now.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}`,
-                        label: (ctx) => {
-                            if (ctx.datasetIndex === 0) {
-                                return ` Tabungan: ${tracker.formatMoney(ctx.raw)}`;
-                            }
-                            return ` Rata-rata: ${tracker.formatMoney(ctx.raw)}`;
-                        }
-                    }
-                }
-            },
-            scales: {
-                x: { 
-                    ticks: { color: chartColors.text, font: { size: 10 } }, 
-                    grid: { display: false },
-                    title: { display: true, text: 'Tanggal', color: chartColors.text }
-                },
-                y: {
-                    ticks: {
-                        color: chartColors.text,
-                        callback: (v) => {
-                            if (v >= 1000000) return 'Rp ' + (v / 1000000).toFixed(1) + 'jt';
-                            if (v >= 1000) return 'Rp ' + (v / 1000).toFixed(0) + 'rb';
-                            return 'Rp ' + v;
-                        }
-                    },
-                    grid: { color: chartColors.grid },
-                    beginAtZero: true
-                }
             }
         }
     });
