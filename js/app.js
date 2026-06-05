@@ -51,7 +51,7 @@ class DuitTracker {
     init() {
         this.renderUserList();
         this.bindEvents();
-        this.setTheme(localStorage.getItem('duit_theme') || 'light');
+        this.setTheme(localStorage.getItem('duit_theme') || 'default');
         // Auto-login if only one user
         if (this.users.length === 1) {
             this.loginUser(this.users[0]);
@@ -170,26 +170,38 @@ class DuitTracker {
     }
 
     // ===== CALCULATIONS =====
+    isSavingsCategory(categoryId) {
+        const savingsIds = CATEGORIES.expense.savings.map(c => c.id);
+        return savingsIds.includes(categoryId);
+    }
+
     calcSummary() {
         const monthly = this.getMonthlyTransactions();
         const income = monthly.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-        const expense = monthly.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+        // Savings categories (tabungan, investasi, dana_darurat) are NOT expenses
+        const expense = monthly.filter(t => t.type === 'expense' && !this.isSavingsCategory(t.category)).reduce((s, t) => s + t.amount, 0);
+        const savings = monthly.filter(t => t.type === 'expense' && this.isSavingsCategory(t.category)).reduce((s, t) => s + t.amount, 0);
+
         const allIncome = this.transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-        const allExpense = this.transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
-        return { income, expense, balance: allIncome - allExpense, monthlyIncome: income, monthlyExpense: expense };
+        const allExpense = this.transactions.filter(t => t.type === 'expense' && !this.isSavingsCategory(t.category)).reduce((s, t) => s + t.amount, 0);
+        const allSavings = this.transactions.filter(t => t.type === 'expense' && this.isSavingsCategory(t.category)).reduce((s, t) => s + t.amount, 0);
+
+        // Balance = income - real expenses (savings are not subtracted, they are part of your wealth)
+        return { 
+            income, expense, savings, 
+            balance: allIncome - allExpense, 
+            monthlyIncome: income, 
+            monthlyExpense: expense, 
+            monthlySavings: savings,
+            totalSavings: allSavings 
+        };
     }
 
     calcRatio() {
         const monthly = this.getMonthlyTransactions();
         const expenses = monthly.filter(t => t.type === 'expense');
-        const totalExpense = expenses.reduce((s, t) => s + t.amount, 0);
+        const totalSpending = expenses.reduce((s, t) => s + t.amount, 0);
         
-        const allExpenseCategories = [
-            ...CATEGORIES.expense.needs,
-            ...CATEGORIES.expense.wants,
-            ...CATEGORIES.expense.savings,
-            ...CATEGORIES.expense.other
-        ];
         const needsIds = CATEGORIES.expense.needs.map(c => c.id);
         const wantsIds = CATEGORIES.expense.wants.map(c => c.id);
         const savingsIds = CATEGORIES.expense.savings.map(c => c.id);
@@ -197,9 +209,9 @@ class DuitTracker {
         const needs = expenses.filter(t => needsIds.includes(t.category)).reduce((s, t) => s + t.amount, 0);
         const wants = expenses.filter(t => wantsIds.includes(t.category)).reduce((s, t) => s + t.amount, 0);
         const savings = expenses.filter(t => savingsIds.includes(t.category)).reduce((s, t) => s + t.amount, 0);
-        const other = totalExpense - needs - wants - savings;
+        const other = totalSpending - needs - wants - savings;
 
-        return { needs: needs + other, wants, savings, total: totalExpense };
+        return { needs: needs + other, wants, savings, total: totalSpending };
     }
 
 
@@ -218,6 +230,7 @@ class DuitTracker {
         document.getElementById('total-balance').textContent = this.formatMoney(s.balance);
         document.getElementById('total-income').textContent = this.formatMoney(s.income);
         document.getElementById('total-expense').textContent = this.formatMoney(s.expense);
+        document.getElementById('total-savings').textContent = this.formatMoney(s.monthlySavings);
     }
 
     updateRatio() {
@@ -276,15 +289,19 @@ class DuitTracker {
         const catInfo = this.getCategoryInfo(t.category, t.type);
         const icon = catInfo ? catInfo.icon : 'fa-circle';
         const catName = catInfo ? catInfo.name : t.category;
+        // Savings categories show as positive (like income)
+        const isSavings = t.type === 'expense' && this.isSavingsCategory(t.category);
+        const displayType = isSavings ? 'savings' : t.type;
+        const prefix = t.type === 'income' ? '+' : isSavings ? '↗' : '-';
         return `
             <div class="transaction-item">
-                <div class="transaction-icon ${t.type}"><i class="fas ${icon}"></i></div>
+                <div class="transaction-icon ${displayType}"><i class="fas ${icon}"></i></div>
                 <div class="transaction-details">
-                    <div class="tx-category">${catName}</div>
+                    <div class="tx-category">${catName}${isSavings ? ' <small style="color:var(--savings-color)">(Tabungan)</small>' : ''}</div>
                     <div class="tx-note">${t.note || '-'}</div>
                 </div>
-                <span class="transaction-amount ${t.type}">
-                    ${t.type === 'income' ? '+' : '-'} ${this.formatMoney(t.amount)}
+                <span class="transaction-amount ${displayType}">
+                    ${prefix} ${this.formatMoney(t.amount)}
                 </span>
                 <span class="transaction-date">${this.formatDate(t.date)}</span>
                 ${showActions ? `<div class="transaction-actions"><button class="delete-tx" data-id="${t.id}"><i class="fas fa-trash"></i></button></div>` : ''}
@@ -442,12 +459,24 @@ class DuitTracker {
         document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem('duit_theme', theme);
         const icon = document.querySelector('#theme-toggle i');
-        icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        // Update theme toggle icon based on light/dark
+        const darkThemes = ['midnight', 'charcoal', 'dark'];
+        icon.className = darkThemes.includes(theme) ? 'fas fa-sun' : 'fas fa-moon';
+        // Update active theme in picker
+        document.querySelectorAll('.theme-option').forEach(opt => {
+            opt.classList.toggle('active', opt.dataset.theme === theme);
+        });
     }
 
     toggleTheme() {
-        const current = localStorage.getItem('duit_theme') || 'light';
-        this.setTheme(current === 'light' ? 'dark' : 'light');
+        const current = localStorage.getItem('duit_theme') || 'default';
+        const darkThemes = ['midnight', 'charcoal', 'dark'];
+        // Toggle between current theme and midnight (dark)
+        if (darkThemes.includes(current)) {
+            this.setTheme('default');
+        } else {
+            this.setTheme('midnight');
+        }
     }
 
 
@@ -520,6 +549,13 @@ class DuitTracker {
         document.getElementById('save-settings-btn').addEventListener('click', () => this.saveSettings());
         document.getElementById('export-btn').addEventListener('click', () => this.exportCSV());
         document.getElementById('clear-data-btn').addEventListener('click', () => this.clearAllData());
+
+        // Theme picker
+        document.querySelectorAll('.theme-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                this.setTheme(opt.dataset.theme);
+            });
+        });
 
         // Populate filter categories
         this.populateFilterCategories();

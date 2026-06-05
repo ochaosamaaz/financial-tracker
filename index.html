@@ -51,6 +51,14 @@
                 <a href="#" class="nav-item" data-page="settings">
                     <i class="fas fa-cog"></i><span>Pengaturan</span>
                 </a>
+                <div class="nav-divider"></div>
+                <span class="nav-section-label">Planner</span>
+                <a href="#" class="nav-item" data-page="wedding">
+                    <i class="fas fa-ring"></i><span>Wedding</span>
+                </a>
+                <a href="#" class="nav-item" data-page="travel">
+                    <i class="fas fa-plane-departure"></i><span>Traveling</span>
+                </a>
             </div>
             <div class="sidebar-footer">
                 <button id="switch-user-btn"><i class="fas fa-users"></i> Ganti User</button>
@@ -96,6 +104,13 @@
                             <span class="card-value" id="total-expense">Rp 0</span>
                         </div>
                     </div>
+                    <div class="card card-savings">
+                        <div class="card-icon"><i class="fas fa-vault"></i></div>
+                        <div class="card-info">
+                            <span class="card-label">Tabungan Bulan Ini</span>
+                            <span class="card-value" id="total-savings">Rp 0</span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- 50/30/20 Ratio -->
@@ -138,6 +153,30 @@
                     <div class="chart-container">
                         <h3><i class="fas fa-chart-line"></i> Tren Bulanan</h3>
                         <canvas id="trend-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Daily Savings Chart -->
+                <div class="savings-tracking-section">
+                    <div class="chart-container full-width">
+                        <div class="savings-header">
+                            <h3><i class="fas fa-piggy-bank"></i> Target Menabung Harian</h3>
+                            <div class="savings-stats">
+                                <div class="stat-badge">
+                                    <span class="stat-label">Total Bulan Ini</span>
+                                    <span class="stat-value" id="savings-total-month">Rp 0</span>
+                                </div>
+                                <div class="stat-badge">
+                                    <span class="stat-label">Rata-rata/Hari</span>
+                                    <span class="stat-value" id="savings-daily-avg">Rp 0</span>
+                                </div>
+                                <div class="stat-badge">
+                                    <span class="stat-label">Hari Menabung</span>
+                                    <span class="stat-value" id="savings-days-count">0 hari</span>
+                                </div>
+                            </div>
+                        </div>
+                        <canvas id="daily-savings-chart"></canvas>
                     </div>
                 </div>
 
@@ -213,6 +252,54 @@
                     <h2><i class="fas fa-cog"></i> Pengaturan</h2>
                     
                     <div class="setting-group">
+                        <h3><i class="fas fa-palette"></i> Tema Aplikasi</h3>
+                        <div class="theme-picker">
+                            <div class="theme-category-label">🧔 Maskulin</div>
+                            <div class="theme-grid">
+                                <div class="theme-option" data-theme="default">
+                                    <div class="theme-swatch" style="background: linear-gradient(135deg, #6C63FF, #A78BFA);"></div>
+                                    <span>Default</span>
+                                </div>
+                                <div class="theme-option" data-theme="ocean">
+                                    <div class="theme-swatch" style="background: linear-gradient(135deg, #0284C7, #38BDF8);"></div>
+                                    <span>Ocean</span>
+                                </div>
+                                <div class="theme-option" data-theme="forest">
+                                    <div class="theme-swatch" style="background: linear-gradient(135deg, #15803D, #4ADE80);"></div>
+                                    <span>Forest</span>
+                                </div>
+                                <div class="theme-option" data-theme="midnight">
+                                    <div class="theme-swatch" style="background: linear-gradient(135deg, #6366F1, #818CF8);"></div>
+                                    <span>Midnight</span>
+                                </div>
+                                <div class="theme-option" data-theme="charcoal">
+                                    <div class="theme-swatch" style="background: linear-gradient(135deg, #F97316, #FB923C);"></div>
+                                    <span>Charcoal</span>
+                                </div>
+                            </div>
+                            <div class="theme-category-label">👩 Feminin</div>
+                            <div class="theme-grid">
+                                <div class="theme-option" data-theme="sakura">
+                                    <div class="theme-swatch" style="background: linear-gradient(135deg, #EC4899, #F472B6);"></div>
+                                    <span>Sakura</span>
+                                </div>
+                                <div class="theme-option" data-theme="lavender">
+                                    <div class="theme-swatch" style="background: linear-gradient(135deg, #8B5CF6, #A78BFA);"></div>
+                                    <span>Lavender</span>
+                                </div>
+                                <div class="theme-option" data-theme="coral">
+                                    <div class="theme-swatch" style="background: linear-gradient(135deg, #F43F5E, #FB7185);"></div>
+                                    <span>Coral</span>
+                                </div>
+                                <div class="theme-option" data-theme="peach">
+                                    <div class="theme-swatch" style="background: linear-gradient(135deg, #F97316, #FDBA74);"></div>
+                                    <span>Peach</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="setting-group">
                         <h3>Reminder Harian</h3>
                         <div class="setting-item">
                             <label>
@@ -251,6 +338,191 @@
                                 <i class="fas fa-trash"></i> Hapus Semua Data
                             </button>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Wedding Planner Page -->
+            <section class="page" id="page-wedding">
+                <div class="planner-container">
+                    <div class="planner-header">
+                        <h2><i class="fas fa-ring"></i> Wedding Planner</h2>
+                        <p class="planner-subtitle">Rencanakan pernikahan impianmu dengan budget yang terkelola</p>
+                    </div>
+
+                    <!-- Wedding Budget Overview -->
+                    <div class="planner-budget-cards">
+                        <div class="planner-card budget-total">
+                            <i class="fas fa-wallet"></i>
+                            <div>
+                                <span class="planner-card-label">Total Budget</span>
+                                <span class="planner-card-value" id="wedding-total-budget">Rp 0</span>
+                            </div>
+                        </div>
+                        <div class="planner-card budget-spent">
+                            <i class="fas fa-receipt"></i>
+                            <div>
+                                <span class="planner-card-label">Sudah Dikeluarkan</span>
+                                <span class="planner-card-value" id="wedding-spent">Rp 0</span>
+                            </div>
+                        </div>
+                        <div class="planner-card budget-remaining">
+                            <i class="fas fa-coins"></i>
+                            <div>
+                                <span class="planner-card-label">Sisa Budget</span>
+                                <span class="planner-card-value" id="wedding-remaining">Rp 0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wedding Budget Progress -->
+                    <div class="planner-progress-section">
+                        <div class="progress-header">
+                            <span>Progress Budget</span>
+                            <span id="wedding-progress-pct">0%</span>
+                        </div>
+                        <div class="planner-progress-bar">
+                            <div class="planner-progress-fill" id="wedding-progress-fill"></div>
+                        </div>
+                    </div>
+
+                    <!-- Wedding Setup -->
+                    <div class="planner-setup">
+                        <div class="setting-group">
+                            <h3><i class="fas fa-cog"></i> Pengaturan Wedding</h3>
+                            <div class="setting-item">
+                                <label>Total Budget Nikah:</label>
+                                <input type="number" id="wedding-budget-input" placeholder="100000000">
+                            </div>
+                            <div class="setting-item">
+                                <label>Tanggal Nikah:</label>
+                                <input type="date" id="wedding-date-input">
+                            </div>
+                            <button class="btn-primary" id="save-wedding-settings">
+                                <i class="fas fa-save"></i> Simpan
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Wedding Checklist -->
+                    <div class="planner-checklist-section">
+                        <div class="checklist-header">
+                            <h3><i class="fas fa-tasks"></i> Checklist & Budget Items</h3>
+                            <button class="btn-primary btn-sm" id="add-wedding-item-btn">
+                                <i class="fas fa-plus"></i> Tambah Item
+                            </button>
+                        </div>
+                        <div class="planner-items" id="wedding-items-list"></div>
+                    </div>
+
+                    <!-- Wedding Countdown -->
+                    <div class="planner-countdown" id="wedding-countdown">
+                        <i class="fas fa-calendar-heart"></i>
+                        <span id="wedding-countdown-text">Set tanggal nikahmu di pengaturan di atas</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Traveling Planner Page -->
+            <section class="page" id="page-travel">
+                <div class="planner-container">
+                    <div class="planner-header">
+                        <h2><i class="fas fa-plane-departure"></i> Traveling Planner</h2>
+                        <p class="planner-subtitle">Rencanakan liburanmu tanpa khawatir budget membengkak</p>
+                    </div>
+
+                    <!-- Trip Selector -->
+                    <div class="trip-selector">
+                        <select id="trip-select">
+                            <option value="">-- Pilih Trip --</option>
+                        </select>
+                        <button class="btn-primary btn-sm" id="add-trip-btn">
+                            <i class="fas fa-plus"></i> Trip Baru
+                        </button>
+                    </div>
+
+                    <!-- Travel Budget Overview -->
+                    <div class="planner-budget-cards">
+                        <div class="planner-card budget-total">
+                            <i class="fas fa-wallet"></i>
+                            <div>
+                                <span class="planner-card-label">Budget Trip</span>
+                                <span class="planner-card-value" id="travel-total-budget">Rp 0</span>
+                            </div>
+                        </div>
+                        <div class="planner-card budget-spent">
+                            <i class="fas fa-receipt"></i>
+                            <div>
+                                <span class="planner-card-label">Sudah Dikeluarkan</span>
+                                <span class="planner-card-value" id="travel-spent">Rp 0</span>
+                            </div>
+                        </div>
+                        <div class="planner-card budget-remaining">
+                            <i class="fas fa-coins"></i>
+                            <div>
+                                <span class="planner-card-label">Sisa Budget</span>
+                                <span class="planner-card-value" id="travel-remaining">Rp 0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Travel Budget Progress -->
+                    <div class="planner-progress-section">
+                        <div class="progress-header">
+                            <span>Progress Budget</span>
+                            <span id="travel-progress-pct">0%</span>
+                        </div>
+                        <div class="planner-progress-bar">
+                            <div class="planner-progress-fill" id="travel-progress-fill"></div>
+                        </div>
+                    </div>
+
+                    <!-- Travel Setup (shown when creating/editing trip) -->
+                    <div class="planner-setup" id="travel-setup" style="display:none;">
+                        <div class="setting-group">
+                            <h3><i class="fas fa-cog"></i> Detail Trip</h3>
+                            <div class="setting-item">
+                                <label>Nama Trip:</label>
+                                <input type="text" id="travel-name-input" placeholder="Bali Trip 2026" style="padding:10px 14px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg); color:var(--text); font-size:14px; flex:1;">
+                            </div>
+                            <div class="setting-item">
+                                <label>Budget Trip:</label>
+                                <input type="number" id="travel-budget-input" placeholder="15000000">
+                            </div>
+                            <div class="setting-item">
+                                <label>Tanggal Berangkat:</label>
+                                <input type="date" id="travel-start-date">
+                            </div>
+                            <div class="setting-item">
+                                <label>Tanggal Pulang:</label>
+                                <input type="date" id="travel-end-date">
+                            </div>
+                            <div style="display:flex; gap:10px;">
+                                <button class="btn-primary" id="save-trip-btn">
+                                    <i class="fas fa-save"></i> Simpan Trip
+                                </button>
+                                <button class="btn-secondary" id="cancel-trip-btn">
+                                    Batal
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Travel Checklist -->
+                    <div class="planner-checklist-section">
+                        <div class="checklist-header">
+                            <h3><i class="fas fa-tasks"></i> Checklist & Expenses</h3>
+                            <button class="btn-primary btn-sm" id="add-travel-item-btn">
+                                <i class="fas fa-plus"></i> Tambah Item
+                            </button>
+                        </div>
+                        <div class="planner-items" id="travel-items-list"></div>
+                    </div>
+
+                    <!-- Travel Countdown -->
+                    <div class="planner-countdown" id="travel-countdown">
+                        <i class="fas fa-plane"></i>
+                        <span id="travel-countdown-text">Pilih atau buat trip baru untuk mulai</span>
                     </div>
                 </div>
             </section>
@@ -302,5 +574,6 @@
     <script src="js/chat.js"></script>
     <script src="js/charts.js"></script>
     <script src="js/reminder.js"></script>
+    <script src="js/planner.js"></script>
 </body>
 </html>
