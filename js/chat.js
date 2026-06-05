@@ -1,4 +1,4 @@
-// ===== CHAT-BASED INPUT - Natural Language Parser =====
+// ===== CHAT INPUT - Natural Language Parser =====
 
 class ChatParser {
     constructor(tracker) {
@@ -9,11 +9,8 @@ class ChatParser {
     init() {
         const input = document.getElementById('chat-input');
         const sendBtn = document.getElementById('chat-send-btn');
-
         sendBtn.addEventListener('click', () => this.processMessage());
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') this.processMessage();
-        });
+        input.addEventListener('keypress', (e) => { if (e.key === 'Enter') this.processMessage(); });
     }
 
     processMessage() {
@@ -28,29 +25,26 @@ class ChatParser {
         if (result) {
             const tx = this.tracker.addTransaction(result);
             const catInfo = this.tracker.getCategoryInfo(result.category, result.type);
-            const typeLabel = result.type === 'income' ? 'Pemasukan' : 'Pengeluaran';
+            const typeLabel = result.type === 'income' ? '📥 Pemasukan' : '📤 Pengeluaran';
             this.addBubble(
-                `✅ Tercatat!\n\n` +
-                `📝 Tipe: ${typeLabel}\n` +
-                `💰 Nominal: ${this.tracker.formatMoney(result.amount)}\n` +
-                `📂 Kategori: ${catInfo ? catInfo.name : result.category}\n` +
-                `📅 Tanggal: ${this.tracker.formatDate(result.date)}\n` +
-                `${result.note ? '📌 Catatan: ' + result.note : ''}`,
+                `✅ Berhasil dicatat!\n\n` +
+                `${typeLabel}\n` +
+                `💰 ${this.tracker.formatMoney(result.amount)}\n` +
+                `📂 ${catInfo ? catInfo.name : result.category}\n` +
+                `📅 ${this.tracker.formatDate(result.date)}\n` +
+                `${result.note ? '📝 ' + result.note : ''}`,
                 'bot'
             );
         } else {
             this.addBubble(
-                '❌ Maaf, saya tidak bisa memahami pesan tersebut.\n\n' +
-                'Coba format seperti:\n' +
-                '• "pemasukan 5.000.000 gaji"\n' +
-                '• "pengeluaran 50.000 makan siang"\n' +
-                '• "keluar 200rb bensin"\n' +
-                '• "masuk 1jt freelance"',
+                '❌ Hmm, saya belum mengerti.\n\nCoba format seperti:\n' +
+                '• "pemasukan 5jt gaji"\n' +
+                '• "keluar 50rb makan siang"\n' +
+                '• "masuk 1.500.000 freelance"\n' +
+                '• "bayar 200rb listrik"',
                 'bot'
             );
         }
-
-        // Scroll to bottom
         const container = document.getElementById('chat-messages');
         container.scrollTop = container.scrollHeight;
     }
@@ -60,67 +54,34 @@ class ChatParser {
 
         // Determine type
         let type = null;
-        const incomeKeywords = ['pemasukan', 'masuk', 'terima', 'dapat', 'income', 'gajian', 'lapor pemasukan', 'pendapatan'];
-        const expenseKeywords = ['pengeluaran', 'keluar', 'bayar', 'beli', 'expense', 'lapor pengeluaran', 'belanja', 'jajan'];
-
-        for (const kw of incomeKeywords) {
-            if (text.includes(kw)) { type = 'income'; break; }
-        }
-        if (!type) {
-            for (const kw of expenseKeywords) {
-                if (text.includes(kw)) { type = 'expense'; break; }
-            }
-        }
-        // Default to expense if no type detected but amount found
+        const incomeKw = ['pemasukan', 'masuk', 'terima', 'dapat', 'income', 'gajian', 'pendapatan', 'lapor pemasukan'];
+        const expenseKw = ['pengeluaran', 'keluar', 'bayar', 'beli', 'expense', 'lapor pengeluaran', 'belanja', 'jajan', 'buat'];
+        for (const kw of incomeKw) { if (text.includes(kw)) { type = 'income'; break; } }
+        if (!type) { for (const kw of expenseKw) { if (text.includes(kw)) { type = 'expense'; break; } } }
         if (!type) type = 'expense';
 
         // Extract amount
-        let amount = this.extractAmount(text);
+        const amount = this.extractAmount(text);
         if (!amount) return null;
 
-        // Extract category and note
+        // Extract category & note
         const { category, note } = this.extractCategory(text, type);
 
-        return {
-            type,
-            amount,
-            category,
-            note,
-            date: new Date().toISOString().split('T')[0]
-        };
+        return { type, amount, category, note, date: new Date().toISOString().split('T')[0] };
     }
 
     extractAmount(text) {
-        // Handle formats: 5.000.000, 5000000, 50rb, 50ribu, 1jt, 1juta, 1.5jt
-        let amount = null;
-
-        // Pattern: number with jt/juta (millions)
         let match = text.match(/(\d+[.,]?\d*)\s*(jt|juta)/i);
-        if (match) {
-            amount = parseFloat(match[1].replace(',', '.')) * 1000000;
-            return Math.round(amount);
-        }
+        if (match) return Math.round(parseFloat(match[1].replace(',', '.')) * 1000000);
 
-        // Pattern: number with rb/ribu (thousands)
         match = text.match(/(\d+[.,]?\d*)\s*(rb|ribu)/i);
-        if (match) {
-            amount = parseFloat(match[1].replace(',', '.')) * 1000;
-            return Math.round(amount);
-        }
+        if (match) return Math.round(parseFloat(match[1].replace(',', '.')) * 1000);
 
-        // Pattern: formatted number like 5.000.000 or 5,000,000
         match = text.match(/(\d{1,3}(?:[.,]\d{3})+)/);
-        if (match) {
-            amount = parseInt(match[1].replace(/[.,]/g, ''));
-            return amount;
-        }
+        if (match) return parseInt(match[1].replace(/[.,]/g, ''));
 
-        // Pattern: plain number
         match = text.match(/(\d{4,})/);
-        if (match) {
-            amount = parseInt(match[1]);
-            return amount;
-        }
+        if (match) return parseInt(match[1]);
 
         return null;
     }
@@ -129,47 +90,41 @@ class ChatParser {
         let category = type === 'income' ? 'lainnya_masuk' : 'lainnya_keluar';
         let note = '';
 
-        // Category keyword mapping
-        const categoryMap = {
-            // Income
+        const map = {
             'gaji': 'gaji', 'salary': 'gaji',
-            'freelance': 'freelance', 'project': 'freelance',
+            'freelance': 'freelance', 'project': 'freelance', 'proyek': 'freelance',
             'bisnis': 'bisnis', 'jualan': 'bisnis', 'usaha': 'bisnis',
             'investasi': type === 'income' ? 'investasi_masuk' : 'investasi',
-            'dividen': 'investasi_masuk', 'saham': 'investasi_masuk',
-            'bonus': 'hadiah', 'hadiah': 'hadiah', 'thr': 'hadiah',
-            // Expense - needs
-            'makan': 'makanan', 'minum': 'makanan', 'kopi': 'makanan', 'snack': 'makanan',
-            'bensin': 'transportasi', 'transport': 'transportasi', 'ojol': 'transportasi', 'grab': 'transportasi', 'gojek': 'transportasi', 'parkir': 'transportasi',
-            'listrik': 'listrik', 'air': 'listrik', 'pln': 'listrik', 'wifi': 'listrik', 'internet': 'listrik',
-            'sewa': 'sewa', 'kost': 'sewa', 'kontrakan': 'sewa', 'cicilan': 'sewa', 'kpr': 'sewa',
-            'obat': 'kesehatan', 'dokter': 'kesehatan', 'rumah sakit': 'kesehatan', 'apotek': 'kesehatan',
-            'sekolah': 'pendidikan', 'kuliah': 'pendidikan', 'kursus': 'pendidikan', 'buku': 'pendidikan',
-            // Expense - wants
-            'nonton': 'hiburan', 'film': 'hiburan', 'game': 'hiburan', 'spotify': 'hiburan', 'netflix': 'hiburan',
-            'baju': 'belanja', 'sepatu': 'belanja', 'tas': 'belanja', 'shopee': 'belanja', 'tokped': 'belanja', 'belanja': 'belanja',
-            'restoran': 'makan_luar', 'cafe': 'makan_luar', 'starbucks': 'makan_luar',
-            'langganan': 'langganan', 'subscribe': 'langganan',
+            'dividen': 'investasi_masuk', 'saham': 'investasi_masuk', 'reksadana': 'investasi',
+            'bonus': 'bonus', 'thr': 'bonus',
+            'royalti': 'royalti',
+            'jasa': 'jasa',
+            'makan': 'makanan', 'minum': 'makanan', 'kopi': 'makanan', 'snack': 'makanan', 'sarapan': 'makanan', 'lunch': 'makanan', 'dinner': 'makanan',
+            'bensin': 'transportasi', 'bbm': 'transportasi', 'transport': 'transportasi', 'ojol': 'transportasi', 'grab': 'transportasi', 'gojek': 'transportasi', 'parkir': 'transportasi', 'tol': 'transportasi',
+            'listrik': 'listrik', 'air': 'listrik', 'pln': 'listrik', 'wifi': 'listrik', 'internet': 'listrik', 'token': 'listrik',
+            'sewa': 'sewa', 'kost': 'sewa', 'kontrakan': 'sewa', 'cicilan': 'sewa', 'kpr': 'sewa', 'kredit': 'sewa',
+            'obat': 'kesehatan', 'dokter': 'kesehatan', 'rs': 'kesehatan', 'apotek': 'kesehatan', 'vitamin': 'kesehatan',
+            'sekolah': 'pendidikan', 'kuliah': 'pendidikan', 'kursus': 'pendidikan', 'buku': 'pendidikan', 'spp': 'pendidikan',
+            'belanja bulanan': 'belanja_bulanan', 'groceries': 'belanja_bulanan', 'supermarket': 'belanja_bulanan',
+            'nonton': 'hiburan', 'film': 'hiburan', 'game': 'hiburan', 'spotify': 'hiburan', 'netflix': 'hiburan', 'konser': 'hiburan', 'bioskop': 'hiburan',
+            'baju': 'pakaian', 'sepatu': 'pakaian', 'tas': 'pakaian', 'pakaian': 'pakaian',
+            'shopee': 'belanja', 'tokped': 'belanja', 'online': 'belanja',
+            'restoran': 'makan_luar', 'cafe': 'makan_luar', 'starbucks': 'makan_luar', 'makan luar': 'makan_luar',
+            'langganan': 'langganan', 'subscribe': 'langganan', 'streaming': 'langganan',
             'liburan': 'liburan', 'hotel': 'liburan', 'tiket': 'liburan', 'traveling': 'liburan',
-            // Expense - savings
+            'sosial': 'sosial', 'amplop': 'sosial', 'nikahan': 'sosial', 'zakat': 'sosial', 'sedekah': 'sosial', 'infaq': 'sosial',
             'tabung': 'tabungan', 'nabung': 'tabungan', 'saving': 'tabungan',
-            'invest': 'investasi', 'reksadana': 'investasi', 'crypto': 'investasi',
             'darurat': 'dana_darurat', 'emergency': 'dana_darurat',
         };
 
-        // Find matching category
-        for (const [keyword, catId] of Object.entries(categoryMap)) {
-            if (text.includes(keyword)) {
-                category = catId;
-                break;
-            }
+        for (const [keyword, catId] of Object.entries(map)) {
+            if (text.includes(keyword)) { category = catId; break; }
         }
 
-        // Extract note - remove type keywords, amount, and try to get remaining meaningful text
+        // Extract note
         let noteText = text;
-        const removeWords = ['lapor', 'pemasukan', 'pengeluaran', 'masuk', 'keluar', 'bayar', 'beli', 'terima', 'dapat', 'income', 'expense'];
-        removeWords.forEach(w => noteText = noteText.replace(w, ''));
-        // Remove amounts
+        const removeWords = ['lapor', 'pemasukan', 'pengeluaran', 'masuk', 'keluar', 'bayar', 'beli', 'terima', 'dapat', 'buat'];
+        removeWords.forEach(w => noteText = noteText.replace(new RegExp(w, 'g'), ''));
         noteText = noteText.replace(/(\d+[.,]?\d*)\s*(jt|juta|rb|ribu)/gi, '');
         noteText = noteText.replace(/\d{1,3}(?:[.,]\d{3})+/g, '');
         noteText = noteText.replace(/\d{4,}/g, '');
