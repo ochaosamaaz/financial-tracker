@@ -222,8 +222,8 @@ class DuitTracker {
         };
     }
 
-    calcRatio() {
-        const monthly = this.getMonthlyTransactions();
+    calcRatio(monthKey) {
+        const monthly = monthKey ? this.getMonthTransactions(monthKey) : this.getMonthlyTransactions();
         const expenses = monthly.filter(t => t.type === 'expense');
         const totalSpending = expenses.reduce((s, t) => s + t.amount, 0);
         
