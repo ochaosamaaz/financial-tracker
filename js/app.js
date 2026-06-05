@@ -44,6 +44,11 @@ class DuitTracker {
         this.settings = {};
         this.currentType = 'expense';
         this.editingId = null;
+        this.members = [];
+        this.householdCode = null;
+        const now = new Date();
+        this.selectedYear = now.getFullYear();
+        this.selectedMonth = now.getMonth();
         this.init();
     }
 
@@ -167,6 +172,26 @@ class DuitTracker {
         const now = new Date();
         const target = month || `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
         return this.transactions.filter(t => t.date && t.date.startsWith(target));
+    }
+
+    // Used by charts.js
+    getSelectedMonthKey() {
+        const now = new Date();
+        const y = this.selectedYear || now.getFullYear();
+        const m = this.selectedMonth !== undefined ? this.selectedMonth : now.getMonth();
+        return `${y}-${String(m + 1).padStart(2, '0')}`;
+    }
+
+    getMonthTransactions(monthKey) {
+        return this.transactions.filter(t => t.date && t.date.startsWith(monthKey));
+    }
+
+    calcMonthSummary(monthKey) {
+        const txs = this.getMonthTransactions(monthKey);
+        const income = txs.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+        const expense = txs.filter(t => t.type === 'expense' && !this.isSavingsCategory(t.category)).reduce((s, t) => s + t.amount, 0);
+        const savings = txs.filter(t => t.type === 'expense' && this.isSavingsCategory(t.category)).reduce((s, t) => s + t.amount, 0);
+        return { income, expense, savings, balance: income - expense };
     }
 
     // ===== CALCULATIONS =====
@@ -421,6 +446,13 @@ class DuitTracker {
     // ===== HELPERS =====
     formatMoney(amount) {
         return 'Rp ' + Math.abs(amount).toLocaleString('id-ID');
+    }
+
+    formatMoneyShort(amount) {
+        const abs = Math.abs(amount);
+        if (abs >= 1000000) return 'Rp ' + (abs / 1000000).toFixed(1) + 'jt';
+        if (abs >= 1000) return 'Rp ' + (abs / 1000).toFixed(0) + 'rb';
+        return 'Rp ' + abs;
     }
 
     formatDate(dateStr) {

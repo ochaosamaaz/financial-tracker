@@ -52,6 +52,17 @@
                     <i class="fas fa-cog"></i><span>Pengaturan</span>
                 </a>
                 <div class="nav-divider"></div>
+                <span class="nav-section-label">Keuangan</span>
+                <a href="#" class="nav-item" data-page="goals">
+                    <i class="fas fa-bullseye"></i><span>Target Tabungan</span>
+                </a>
+                <a href="#" class="nav-item" data-page="debts">
+                    <i class="fas fa-handshake"></i><span>Hutang/Piutang</span>
+                </a>
+                <a href="#" class="nav-item" data-page="wishlist">
+                    <i class="fas fa-star"></i><span>Wishlist</span>
+                </a>
+                <div class="nav-divider"></div>
                 <span class="nav-section-label">Planner</span>
                 <a href="#" class="nav-item" data-page="wedding">
                     <i class="fas fa-ring"></i><span>Wedding</span>
@@ -147,8 +158,19 @@
                 <!-- Charts -->
                 <div class="charts-grid">
                     <div class="chart-container">
+                        <h3><i class="fas fa-chart-line"></i> Pengeluaran Harian</h3>
+                        <canvas id="daily-chart"></canvas>
+                    </div>
+                    <div class="chart-container">
                         <h3><i class="fas fa-chart-doughnut"></i> Kategori Pengeluaran</h3>
                         <canvas id="category-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <h3><i class="fas fa-chart-bar"></i> Riwayat 6 Bulan</h3>
+                        <canvas id="history-chart"></canvas>
                     </div>
                     <div class="chart-container">
                         <h3><i class="fas fa-chart-line"></i> Tren Bulanan</h3>
@@ -180,6 +202,9 @@
                     </div>
                 </div>
 
+                <!-- Weekly Report -->
+                <div id="weekly-report-section"></div>
+
                 <!-- Recent Transactions -->
                 <div class="recent-transactions">
                     <h3><i class="fas fa-clock"></i> Transaksi Terakhir</h3>
@@ -207,6 +232,8 @@
                     <input type="month" id="filter-month">
                 </div>
                 <div class="transaction-list full" id="all-transactions-list"></div>
+                <div id="splitbill-area"></div>
+                <div id="recurring-area"></div>
             </section>
 
             <!-- Chat Input Page -->
@@ -243,6 +270,8 @@
                         <h3><i class="fas fa-chart-area"></i> Perbandingan Pemasukan vs Pengeluaran</h3>
                         <canvas id="comparison-chart"></canvas>
                     </div>
+                    <div id="challenges-area"></div>
+                    <div id="comparison-area"></div>
                 </div>
             </section>
 
@@ -341,6 +370,15 @@
                     </div>
                 </div>
             </section>
+
+            <!-- Goals Page (rendered by features-ui.js) -->
+            <section class="page" id="page-goals"></section>
+
+            <!-- Debts Page (rendered by features-ui.js) -->
+            <section class="page" id="page-debts"></section>
+
+            <!-- Wishlist Page (rendered by features-ui.js) -->
+            <section class="page" id="page-wishlist"></section>
 
             <!-- Wedding Planner Page -->
             <section class="page" id="page-wedding">
@@ -574,6 +612,10 @@
     <script src="js/chat.js"></script>
     <script src="js/charts.js"></script>
     <script src="js/reminder.js"></script>
+    <script src="js/features.js"></script>
+    <script src="js/features-ui.js"></script>
+    <script src="js/health-score.js"></script>
+    <script src="js/onboarding.js"></script>
     <script src="js/planner.js"></script>
 </body>
 </html>
