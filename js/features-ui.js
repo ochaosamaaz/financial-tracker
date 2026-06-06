@@ -24,6 +24,14 @@ class PremiumFeaturesUI {
                     this.currentFeaturePage = page;
                     setTimeout(() => this.renderPage(page), 50);
                 }
+                if (page === 'settings') {
+                    setTimeout(() => {
+                        if (typeof catBudgetManager !== 'undefined') {
+                            const area = document.getElementById('cat-budget-settings-area');
+                            if (area) { area.innerHTML = catBudgetManager.renderSettingsUI(); catBudgetManager.bindEvents(); }
+                        }
+                    }, 100);
+                }
             });
         });
     }

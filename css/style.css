@@ -1185,3 +1185,9 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 .planner-countdown i { font-size:24px; }
 .trip-selector { display:flex;gap:12px;margin-bottom:24px;align-items:center; }
 .trip-selector select { flex:1;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text);font-size:14px; }
+
+
+
+/* ===== NOTIFICATION BADGE ===== */
+.notif-badge { position:absolute;top:-4px;right:-4px;background:var(--danger);color:white;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px; }
+#notif-btn { position:relative; }

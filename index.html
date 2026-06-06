@@ -162,6 +162,7 @@
                     <div class="period-label"><i class="fas fa-calendar-alt"></i> Periode:</div>
                     <select id="dash-month"></select>
                     <select id="dash-year"></select>
+                    <button class="btn-secondary" id="download-report-btn" style="margin-left:auto;padding:8px 14px;font-size:12px;border-radius:8px;"><i class="fas fa-file-pdf"></i> Laporan PDF</button>
                 </div>
                 <div class="summary-cards four-cols">
                     <div class="card card-income"><div class="card-icon"><i class="fas fa-arrow-down"></i></div><div class="card-info"><span class="card-label">Total Pemasukan</span><span class="card-value" id="total-income">Rp 0</span><span class="card-vs" id="vs-income"></span></div></div>
@@ -171,6 +172,8 @@
                 </div>
                 <!-- Health Score Section -->
                 <div id="health-score-section"></div>
+                <!-- Category Budget Widget -->
+                <div id="cat-budget-widget-area"></div>
                 <div class="target-bar-section">
                     <div class="target-label"><i class="fas fa-bullseye"></i> Target pengeluaran terisi</div>
                     <div class="target-bar"><div class="target-fill" id="target-fill"></div></div>
@@ -320,6 +323,8 @@
                     <div class="setting-group"><h3>Reminder Harian</h3><div class="setting-item"><label><input type="checkbox" id="reminder-enabled"> Aktifkan</label></div><div class="setting-item"><label>Waktu:</label><input type="time" id="reminder-time" value="20:00"></div></div>
                     <div class="setting-group"><h3>Avatar</h3><p style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;">Pilih emoji avatar kamu</p><div class="avatar-picker" id="settings-avatar-picker"></div><button class="btn-primary" id="save-avatar-btn" style="margin-top:12px;"><i class="fas fa-save"></i> Simpan Avatar</button></div>
                     <div class="setting-group"><h3>Target Bulanan</h3><div class="setting-item"><label>Maks pengeluaran:</label><input type="number" id="budget-target" placeholder="6000000"></div><div class="setting-item"><label>Target tabungan:</label><input type="number" id="savings-target" placeholder="1000000"></div><button class="btn-primary" id="save-settings-btn"><i class="fas fa-save"></i> Simpan</button></div>
+                    <!-- Category Budget (rendered dynamically) -->
+                    <div id="cat-budget-settings-area"></div>
                     <div class="setting-group"><h3>Data</h3><div class="setting-actions"><button class="btn-secondary" id="export-btn"><i class="fas fa-download"></i> Export CSV</button><button class="btn-danger" id="clear-data-btn"><i class="fas fa-trash"></i> Hapus Data</button></div></div>
                 </div>
             </section>
@@ -385,6 +390,7 @@
     <script src="js/health-score.js"></script>
     <script src="js/onboarding.js"></script>
     <script src="js/planner.js"></script>
+    <script src="js/smart-features.js"></script>
     <script>
         // Register Service Worker
         if ('serviceWorker' in navigator) {
