@@ -207,16 +207,75 @@ class PremiumFeaturesUI {
     renderWishlistPage() {
         const container = document.getElementById('page-wishlist');
         if (!container) return;
+
+        // Calculate savings stats for wishlist
+        const wishlist = premiumFeatures.wishlist;
+        const totalTarget = wishlist.reduce((s, w) => s + (w.price || 0), 0);
+        const totalSaved = wishlist.reduce((s, w) => s + (w.savedAmount || 0), 0);
+        const avgSaved = wishlist.length > 0 ? Math.round(totalSaved / wishlist.length) : 0;
+        const totalPct = totalTarget > 0 ? Math.round((totalSaved / totalTarget) * 100) : 0;
+
         container.innerHTML = `
             <div class="page-header">
                 <h2><i class="fas fa-star"></i> Wishlist Bersama</h2>
                 <button class="btn-primary" id="add-wishlist-btn"><i class="fas fa-plus"></i> Tambah Item</button>
             </div>
+            <div class="wishlist-stats-row" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px;">
+                <div class="stat-card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;">
+                    <div style="font-size:12px;color:var(--text-secondary)">Total Target</div>
+                    <div style="font-size:18px;font-weight:700;color:var(--primary)">${app.formatMoney(totalTarget)}</div>
+                </div>
+                <div class="stat-card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;">
+                    <div style="font-size:12px;color:var(--text-secondary)">Total Terkumpul</div>
+                    <div style="font-size:18px;font-weight:700;color:var(--success)">${app.formatMoney(totalSaved)}</div>
+                </div>
+                <div class="stat-card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;">
+                    <div style="font-size:12px;color:var(--text-secondary)">Rata-rata / Item</div>
+                    <div style="font-size:18px;font-weight:700;color:var(--info,#3B82F6)">${app.formatMoney(avgSaved)}</div>
+                </div>
+                <div class="stat-card" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;">
+                    <div style="font-size:12px;color:var(--text-secondary)">Progress Total</div>
+                    <div style="font-size:18px;font-weight:700;color:var(--warning)">${totalPct}%</div>
+                </div>
+            </div>
+            ${wishlist.length > 0 ? `
+            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:20px;">
+                <h3 style="font-size:14px;margin-bottom:12px;"><i class="fas fa-chart-line" style="color:var(--primary);margin-right:8px;"></i>Progress Nabung per Item</h3>
+                <canvas id="wishlist-savings-chart"></canvas>
+            </div>` : ''}
             <div class="wishlist-grid" id="wishlist-list">
                 ${premiumFeatures.renderWishlist()}
             </div>
         `;
         this.bindWishlistEvents();
+        if (wishlist.length > 0) this.renderWishlistSavingsChart(wishlist);
+    }
+
+    renderWishlistSavingsChart(wishlist) {
+        const ctx = document.getElementById('wishlist-savings-chart');
+        if (!ctx) return;
+        const sorted = [...wishlist].sort((a,b) => (a.priority||3) - (b.priority||3));
+        const labels = sorted.map(w => w.name.length > 15 ? w.name.slice(0,15)+'...' : w.name);
+        const targetData = sorted.map(w => w.price || 0);
+        const savedData = sorted.map(w => w.savedAmount || 0);
+
+        if (this._wishlistChart) this._wishlistChart.destroy();
+        this._wishlistChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [
+                    { label: 'Target', data: targetData, backgroundColor: 'rgba(99,102,241,0.3)', borderColor: '#6366F1', borderWidth: 1, borderRadius: 4 },
+                    { label: 'Terkumpul', data: savedData, backgroundColor: 'rgba(16,185,129,0.7)', borderColor: '#10B981', borderWidth: 1, borderRadius: 4 }
+                ]
+            },
+            options: {
+                responsive: true, indexAxis: 'y',
+                plugins: { legend: { position:'top', labels: { usePointStyle:true, font:{size:11} } },
+                    tooltip: { callbacks: { label: (c) => ` ${c.dataset.label}: Rp ${c.raw.toLocaleString('id-ID')}` } } },
+                scales: { x: { ticks: { callback: v => v>=1000000?'Rp '+(v/1000000).toFixed(1)+'jt':'Rp '+(v/1000)+'rb' } } }
+            }
+        });
     }
 
     bindWishlistEvents() {
@@ -456,11 +515,14 @@ class PremiumFeaturesUI {
         const challengesArea = document.getElementById('challenges-area');
         if (challengesArea) challengesArea.innerHTML = premiumFeatures.renderChallenges() + premiumFeatures.renderAchievements();
 
-        // Partner comparison in insights
+        // Partner comparison in insights (enhanced with savings)
         const compArea = document.getElementById('comparison-area');
         if (compArea) {
-            compArea.innerHTML = premiumFeatures.renderPartnerComparison();
-            setTimeout(() => premiumFeatures.renderPartnerChart(), 100);
+            compArea.innerHTML = this.renderCoupleFinanceComparison() + premiumFeatures.renderPartnerComparison();
+            setTimeout(() => {
+                premiumFeatures.renderPartnerChart();
+                this.renderCoupleFinanceChart();
+            }, 100);
         }
 
         // Split bill in transactions page
@@ -475,6 +537,92 @@ class PremiumFeaturesUI {
         if (recArea) {
             this.renderRecurringPage();
         }
+    }
+
+    // ===== COUPLE FINANCE COMPARISON =====
+    renderCoupleFinanceComparison() {
+        if (app.members.length < 2) return '';
+        const mk = app.getSelectedMonthKey();
+        const allTx = app.transactions.filter(t => t.date && t.date.startsWith(mk));
+        const savingsIds = ['tabungan','investasi','dana_darurat'];
+        const memberStats = {};
+
+        app.members.forEach(m => {
+            const mTx = allTx.filter(t => t.addedBy === m.name);
+            const income = mTx.filter(t => t.type === 'income').reduce((s,t) => s + t.amount, 0);
+            const expense = mTx.filter(t => t.type === 'expense' && !savingsIds.includes(t.category)).reduce((s,t) => s + t.amount, 0);
+            const savings = mTx.filter(t => t.type === 'expense' && savingsIds.includes(t.category)).reduce((s,t) => s + t.amount, 0);
+            memberStats[m.name] = { income, expense, savings, net: income - expense };
+        });
+
+        const members = Object.keys(memberStats);
+        const totalIncome = members.reduce((s,m) => s + memberStats[m].income, 0);
+        const totalExpense = members.reduce((s,m) => s + memberStats[m].expense, 0);
+        const totalSavings = members.reduce((s,m) => s + memberStats[m].savings, 0);
+
+        return `
+        <div class="couple-finance-section" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px;">
+            <h3 style="margin-bottom:16px;font-size:16px;"><i class="fas fa-heart" style="color:var(--danger);margin-right:8px;"></i> Keuangan Pasangan Bulan Ini</h3>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px;">
+                ${members.map(m => {
+                    const s = memberStats[m];
+                    const savPct = s.income > 0 ? Math.round((s.savings / s.income) * 100) : 0;
+                    return `
+                    <div style="background:var(--bg);border-radius:var(--radius-sm);padding:14px;text-align:center;border:1px solid var(--border);">
+                        <div style="font-weight:700;font-size:14px;margin-bottom:8px;">${m}</div>
+                        <div style="font-size:11px;color:var(--success)">+${app.formatMoneyShort(s.income)}</div>
+                        <div style="font-size:11px;color:var(--danger)">-${app.formatMoneyShort(s.expense)}</div>
+                        <div style="font-size:11px;color:var(--info,#3B82F6)">↗${app.formatMoneyShort(s.savings)}</div>
+                        <div style="margin-top:6px;font-size:12px;font-weight:600;color:var(--primary)">Nabung ${savPct}%</div>
+                    </div>`;
+                }).join('')}
+                <div style="background:var(--bg);border-radius:var(--radius-sm);padding:14px;text-align:center;border:2px solid var(--primary);">
+                    <div style="font-weight:700;font-size:14px;margin-bottom:8px;">Total Berdua</div>
+                    <div style="font-size:11px;color:var(--success)">+${app.formatMoneyShort(totalIncome)}</div>
+                    <div style="font-size:11px;color:var(--danger)">-${app.formatMoneyShort(totalExpense)}</div>
+                    <div style="font-size:11px;color:var(--info,#3B82F6)">↗${app.formatMoneyShort(totalSavings)}</div>
+                    <div style="margin-top:6px;font-size:12px;font-weight:600;color:var(--success)">Sisa: ${app.formatMoneyShort(totalIncome - totalExpense)}</div>
+                </div>
+            </div>
+            <canvas id="couple-finance-chart"></canvas>
+        </div>`;
+    }
+
+    renderCoupleFinanceChart() {
+        const ctx = document.getElementById('couple-finance-chart');
+        if (!ctx || app.members.length < 2) return;
+
+        const mk = app.getSelectedMonthKey();
+        const allTx = app.transactions.filter(t => t.date && t.date.startsWith(mk));
+        const savingsIds = ['tabungan','investasi','dana_darurat'];
+        const members = app.members.map(m => m.name);
+
+        const incomeData = members.map(m => allTx.filter(t => t.addedBy === m && t.type === 'income').reduce((s,t) => s + t.amount, 0));
+        const expenseData = members.map(m => allTx.filter(t => t.addedBy === m && t.type === 'expense' && !savingsIds.includes(t.category)).reduce((s,t) => s + t.amount, 0));
+        const savingsData = members.map(m => allTx.filter(t => t.addedBy === m && t.type === 'expense' && savingsIds.includes(t.category)).reduce((s,t) => s + t.amount, 0));
+
+        if (this._coupleChart) this._coupleChart.destroy();
+        this._coupleChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: members,
+                datasets: [
+                    { label: 'Pemasukan', data: incomeData, backgroundColor: 'rgba(16,185,129,0.7)', borderRadius: 4 },
+                    { label: 'Pengeluaran', data: expenseData, backgroundColor: 'rgba(239,68,68,0.7)', borderRadius: 4 },
+                    { label: 'Tabungan', data: savingsData, backgroundColor: 'rgba(59,130,246,0.7)', borderRadius: 4 }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top', labels: { usePointStyle: true, font: { size: 11 } } },
+                    tooltip: { callbacks: { label: (c) => ` ${c.dataset.label}: Rp ${c.raw.toLocaleString('id-ID')}` } }
+                },
+                scales: {
+                    y: { ticks: { callback: v => v >= 1000000 ? (v/1000000).toFixed(1)+'jt' : (v/1000)+'rb' }, beginAtZero: true }
+                }
+            }
+        });
     }
 }
 
